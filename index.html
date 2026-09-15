@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>♡ コンプチェッカー ♡ v2.1</title>
+<title>♡ コンプチェッカー ♡ v2.2</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;background:#fff7fc;color:#4a3b45}
@@ -24,14 +24,10 @@ header p{margin:6px 0 0;font-size:14px}
 .controls button.active{background:#ff9dcc;color:#fff}
 .search{width:100%;padding:13px 15px;border:2px solid #f0dce8;border-radius:14px;font-size:16px;margin-bottom:12px;outline:0}
 .cards{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
-.card{background:#fff;border-radius:16px;padding:10px;box-shadow:0 3px 10px rgba(0,0,0,.08);cursor:pointer;position:relative}
+.card{background:#fff;border-radius:16px;padding:10px;box-shadow:0 3px 10px rgba(0,0,0,.08);position:relative}
 .card-image{width:100%;aspect-ratio:3/4;border-radius:10px;background:linear-gradient(135deg,#f3d8ff,#ffd9ed);display:flex;align-items:center;justify-content:center;overflow:hidden;color:#987c91;font-size:13px;text-align:center}
 .card-image img{width:100%;height:100%;object-fit:contain;display:block}
 .card-name{font-weight:bold;margin-top:8px;font-size:14px}
-.badges{display:flex;gap:5px;margin-top:7px;flex-wrap:wrap}
-.badge{font-size:11px;padding:3px 7px;border-radius:999px;background:#eee;color:#777}
-.badge.want{background:#ffd8ec;color:#d34d91}
-.badge.have{background:#e1d7ff;color:#7157b5}
 .empty{text-align:center;padding:40px 10px;color:#999}
 .actions{display:flex;gap:8px;margin-top:16px}
 .actions button,.reset{flex:1;padding:12px;border:0;border-radius:12px;font-size:14px}
@@ -50,26 +46,25 @@ header p{margin:6px 0 0;font-size:14px}
 .sheet-actions button{flex:1;padding:12px;border:0;border-radius:12px}
 .save{background:#ff9dcc;color:#fff}
 .cancel{background:#eee}
-.card{padding:10px}
-.card-open{display:block;width:100%;padding:0;border:0;background:transparent;text-align:left;color:inherit;cursor:pointer}
-.card-open:active .card-image{transform:scale(.98)}
-.card-image{transition:transform .12s}
 .status-button{width:100%;margin-top:9px;padding:10px 6px;border:2px solid #eee;border-radius:12px;background:#f7f7f7;color:#777;font-size:13px;font-weight:600;cursor:pointer}
 .status-button.want{border-color:#ffb6d8;background:#fff0f7;color:#d34d91}
 .status-button.have{border-color:#c9b8ff;background:#f4f0ff;color:#7157b5}
 .status-button.none{border-color:#e5e5e5;background:#f7f7f7;color:#777}
-.modal.open{overflow:auto}
 .list-preview{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:30;overflow:auto;padding:20px 12px}
 .preview-sheet{max-width:700px;margin:20px auto;background:#fff;border-radius:18px;padding:14px}
 .preview-head{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:18px}
 .preview-head button{border:0;background:#eee;border-radius:10px;padding:8px 12px}
 .preview-note{font-size:13px;color:#777;margin:10px 0}
 .preview-body{text-align:center}
+.preview-body img{width:100%;height:auto;display:block;border-radius:10px}
+.preview-actions{display:flex;gap:8px;margin-top:12px}
+.preview-actions button{flex:1;border:0;border-radius:12px;padding:12px;font-size:14px}
+.preview-save{background:#ff9dcc;color:#fff}
+.preview-close{background:#eee;color:#555}
 .loading{padding:40px;color:#777}
-.generated-list-image{width:100%;height:auto;display:block;border-radius:10px;-webkit-touch-callout:default;user-select:none}
+@media(max-width:420px){.cards{gap:9px}.card{padding:8px}.controls button{font-size:13px}}
 </style>
 </head>
-
 <body>
 
 <header>
@@ -92,13 +87,10 @@ header p{margin:6px 0 0;font-size:14px}
 </div>
 
 <div class="container">
-
 <div class="progress-box">
 <div>コンプリート率</div>
 <div class="progress-text" id="percent">0%</div>
-<div class="progress-bar">
-<div class="progress-fill" id="progress"></div>
-</div>
+<div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
 <div id="count">0 / 85 枚</div>
 </div>
 
@@ -118,120 +110,53 @@ header p{margin:6px 0 0;font-size:14px}
 </div>
 
 <button class="reset" onclick="resetData()">データをリセット</button>
-
 </div>
 
 <div class="modal" id="modal">
 <div class="sheet">
 <h2 id="modalTitle">カード</h2>
-
-<div style="font-size:13px;color:#777;margin-bottom:6px">
-このカードの状態を選んでください
-</div>
-
+<div style="font-size:13px;color:#777;margin-bottom:6px">このカードの状態を選んでください</div>
 <div class="choice">
 <button id="noneBtn" onclick="chooseType('none')">未設定</button>
 <button id="wantBtn" onclick="chooseType('want')">♡ 欲しいもの</button>
 <button id="haveBtn" onclick="chooseType('have')">📦 所持数</button>
 </div>
-
 <input class="qty" id="qty" type="number" min="0" max="99" value="1" placeholder="所持数">
-
 <div class="sheet-actions">
 <button class="cancel" onclick="closeModal()">キャンセル</button>
 <button class="save" onclick="saveCard()">保存</button>
 </div>
-
 </div>
 </div>
 
 <script>
-
 const cardsE1=[
-{id:"E1-01",image:""},
-{id:"E1-02",image:""},
-{id:"E1-03",image:""},
-{id:"E1-04",image:""},
-{id:"E1-05",image:"E1-05.webp"},
-{id:"E1-06",image:"E1-06.webp"},
-{id:"E1-07",image:"E1-07.webp"},
-{id:"E1-08",image:"E1-08.webp"},
-{id:"E1-09",image:"E1-09.webp"},
-{id:"E1-10",image:"E1-10.webp"},
-{id:"E1-11",image:"E1-11.webp"},
-{id:"E1-12",image:"E1-12.webp"},
-{id:"E1-13",image:"E1-13.webp"},
-{id:"E1-14",image:"E1-14.webp"},
-{id:"E1-15",image:"E1-15.webp"},
-{id:"E1-16",image:"E1-16.webp"},
-{id:"E1-17",image:"E1-17.webp"},
-{id:"E1-18",image:"E1-18.webp"},
-{id:"E1-19",image:"E1-19.webp"},
-{id:"E1-20",image:"E1-20.webp"},
-{id:"E1-21",image:"E1-21.webp"},
-{id:"E1-22",image:"E1-22.webp"},
-{id:"E1-23",image:"E1-23.webp"},
-{id:"E1-24",image:"E1-24.webp"},
-{id:"E1-25",image:"E1-25.webp"},
-{id:"E1-26",image:"E1-26.webp"},
-{id:"E1-27",image:"E1-27.webp"},
-{id:"E1-28",image:"E1-28.webp"},
-{id:"E1-29",image:"E1-29.webp"},
-{id:"E1-30",image:""},
-{id:"E1-31",image:""},
-{id:"E1-32",image:""},
-{id:"E1-33",image:""},
-{id:"E1-34",image:""},
-{id:"E1-35",image:""},
-{id:"E1-36",image:""},
-{id:"E1-37",image:"E1-37.webp"},
-{id:"E1-38",image:"E1-38.webp"},
-{id:"E1-39",image:"E1-39.webp"},
-{id:"E1-40",image:"E1-40.webp"},
-{id:"E1-41",image:"E1-41.webp"},
-{id:"E1-42",image:"E1-42.webp"},
-{id:"E1-43",image:"E1-43.webp"},
-{id:"E1-44",image:"E1-44.webp"},
-{id:"E1-45",image:"E1-45.webp"},
-{id:"E1-46",image:"E1-46.webp"},
-{id:"E1-47",image:"E1-47.webp"},
-{id:"E1-48",image:"E1-48.webp"},
-{id:"E1-49",image:"E1-49.webp"},
-{id:"E1-50",image:""},
-{id:"E1-51",image:"E1-51.webp"},
-{id:"E1-52",image:"E1-52.webp"},
-{id:"E1-53",image:"E1-53.webp"},
-{id:"E1-54",image:"E1-54.webp"},
-{id:"E1-55",image:"E1-55.webp"},
-{id:"E1-56",image:"E1-56.webp"},
-{id:"E1-57",image:"E1-57.webp"},
-{id:"E1-58",image:"E1-58.webp"},
-{id:"E1-59",image:"E1-59.webp"},
-{id:"E1-60",image:"E1-60.webp"},
-{id:"E1-61",image:"E1-61.webp"},
-{id:"E1-62",image:"E1-62.webp"},
-{id:"E1-63",image:"E1-63.webp"},
-{id:"E1-64",image:"E1-64.webp"},
-{id:"E1-65",image:"E1-65.webp"},
-{id:"E1-66",image:"E1-66.webp"},
-{id:"E1-67",image:"E1-67.webp"},
-{id:"E1-68",image:"E1-68.webp"},
-{id:"E1-69",image:"E1-69.webp"},
-{id:"E1-70",image:"E1-70.webp"},
-{id:"E1-71",image:""},
-{id:"E1-72",image:""},
-{id:"E1-73",image:""},
-{id:"E1-74",image:""},
-{id:"E1-75",image:""},
-{id:"E1-76",image:""},
-{id:"E1-77",image:""},
-{id:"E1-78",image:""},
-{id:"E1-79",image:""},
-{id:"E1-80",image:""},
-{id:"E1-81",image:""},
-{id:"E1-82",image:""},
-{id:"E1-83",image:"E1-83.webp"},
-{id:"E1-84",image:"E1-84.webp"},
+{id:"E1-01",image:""},{id:"E1-02",image:""},{id:"E1-03",image:""},{id:"E1-04",image:""},
+{id:"E1-05",image:"E1-05.webp"},{id:"E1-06",image:"E1-06.webp"},{id:"E1-07",image:"E1-07.webp"},
+{id:"E1-08",image:"E1-08.webp"},{id:"E1-09",image:"E1-09.webp"},{id:"E1-10",image:"E1-10.webp"},
+{id:"E1-11",image:"E1-11.webp"},{id:"E1-12",image:"E1-12.webp"},{id:"E1-13",image:"E1-13.webp"},
+{id:"E1-14",image:"E1-14.webp"},{id:"E1-15",image:"E1-15.webp"},{id:"E1-16",image:"E1-16.webp"},
+{id:"E1-17",image:"E1-17.webp"},{id:"E1-18",image:"E1-18.webp"},{id:"E1-19",image:"E1-19.webp"},
+{id:"E1-20",image:"E1-20.webp"},{id:"E1-21",image:"E1-21.webp"},{id:"E1-22",image:"E1-22.webp"},
+{id:"E1-23",image:"E1-23.webp"},{id:"E1-24",image:"E1-24.webp"},{id:"E1-25",image:"E1-25.webp"},
+{id:"E1-26",image:"E1-26.webp"},{id:"E1-27",image:"E1-27.webp"},{id:"E1-28",image:"E1-28.webp"},
+{id:"E1-29",image:"E1-29.webp"},{id:"E1-30",image:""},{id:"E1-31",image:""},{id:"E1-32",image:""},
+{id:"E1-33",image:""},{id:"E1-34",image:""},{id:"E1-35",image:""},{id:"E1-36",image:""},
+{id:"E1-37",image:"E1-37.webp"},{id:"E1-38",image:"E1-38.webp"},{id:"E1-39",image:"E1-39.webp"},
+{id:"E1-40",image:"E1-40.webp"},{id:"E1-41",image:"E1-41.webp"},{id:"E1-42",image:"E1-42.webp"},
+{id:"E1-43",image:"E1-43.webp"},{id:"E1-44",image:"E1-44.webp"},{id:"E1-45",image:"E1-45.webp"},
+{id:"E1-46",image:"E1-46.webp"},{id:"E1-47",image:"E1-47.webp"},{id:"E1-48",image:"E1-48.webp"},
+{id:"E1-49",image:"E1-49.webp"},{id:"E1-50",image:""},{id:"E1-51",image:"E1-51.webp"},
+{id:"E1-52",image:"E1-52.webp"},{id:"E1-53",image:"E1-53.webp"},{id:"E1-54",image:"E1-54.webp"},
+{id:"E1-55",image:"E1-55.webp"},{id:"E1-56",image:"E1-56.webp"},{id:"E1-57",image:"E1-57.webp"},
+{id:"E1-58",image:"E1-58.webp"},{id:"E1-59",image:"E1-59.webp"},{id:"E1-60",image:"E1-60.webp"},
+{id:"E1-61",image:"E1-61.webp"},{id:"E1-62",image:"E1-62.webp"},{id:"E1-63",image:"E1-63.webp"},
+{id:"E1-64",image:"E1-64.webp"},{id:"E1-65",image:"E1-65.webp"},{id:"E1-66",image:"E1-66.webp"},
+{id:"E1-67",image:"E1-67.webp"},{id:"E1-68",image:"E1-68.webp"},{id:"E1-69",image:"E1-69.webp"},
+{id:"E1-70",image:"E1-70.webp"},{id:"E1-71",image:""},{id:"E1-72",image:""},{id:"E1-73",image:""},
+{id:"E1-74",image:""},{id:"E1-75",image:""},{id:"E1-76",image:""},{id:"E1-77",image:""},
+{id:"E1-78",image:""},{id:"E1-79",image:""},{id:"E1-80",image:""},{id:"E1-81",image:""},
+{id:"E1-82",image:""},{id:"E1-83",image:"E1-83.webp"},{id:"E1-84",image:"E1-84.webp"},
 {id:"E1-85",image:"E1-85.webp"}
 ];
 
@@ -246,18 +171,7 @@ e6:{name:"6弾",subtitle:"アイカツ！アンコール 第6弾",cards:[],stora
 promo:{name:"プロモーション",subtitle:"アイカツ！アンコール プロモーション",cards:[],storageKey:"aikatsu-encore-promo-data-v1",oldKey:null}
 };
 
-const allSet={
-name:"すべて",
-subtitle:"アイカツ！アンコール 全カード",
-cards:[],
-storageKey:"aikatsu-encore-all-view",
-oldKey:null
-};
-
-let currentSetKey="all";
-let currentSet=sets[currentSetKey];
-let cards=[...cardsE1];
-let data={};
+let currentSetKey="all",currentSet=sets.all,cards=[...cardsE1],data={},filter="all",editingId="",editingType="none";
 
 function loadSetData(){
 if(currentSetKey==="all"){
@@ -268,13 +182,10 @@ Object.assign(data,d);
 });
 return;
 }
-
 data=JSON.parse(localStorage.getItem(currentSet.storageKey)||"{}");
-
-if(Object.keys(data).length===0 && currentSet.oldKey){
+if(Object.keys(data).length===0&&currentSet.oldKey){
 const oldOwned=JSON.parse(localStorage.getItem(currentSet.oldKey)||"[]");
-
-if(Array.isArray(oldOwned) && oldOwned.length){
+if(Array.isArray(oldOwned)&&oldOwned.length){
 oldOwned.forEach(id=>data[id]={type:"have",qty:1});
 localStorage.setItem(currentSet.storageKey,JSON.stringify(data));
 }
@@ -283,236 +194,270 @@ localStorage.setItem(currentSet.storageKey,JSON.stringify(data));
 
 function switchSet(key){
 if(!sets[key])return;
-
-currentSetKey=key;
-currentSet=sets[key];
-
-cards=key==="all"
-?[...cardsE1,...sets.e2.cards,...sets.e3.cards,...sets.e4.cards,...sets.e5.cards,...sets.e6.cards,...sets.promo.cards]
-:currentSet.cards;
-
+currentSetKey=key;currentSet=sets[key];
+cards=key==="all"?[...cardsE1,...sets.e2.cards,...sets.e3.cards,...sets.e4.cards,...sets.e5.cards,...sets.e6.cards,...sets.promo.cards]:currentSet.cards;
 filter="all";
-
 document.getElementById("setSelector").value=key;
 document.getElementById("setSubtitle").textContent=currentSet.subtitle;
 document.title="♡ コンプチェッカー ♡ "+currentSet.name;
-
-document.querySelectorAll(".controls button").forEach((b,i)=>
-b.classList.toggle("active",i===0)
-);
-
-loadSetData();
-render();
+document.querySelectorAll(".controls button").forEach((b,i)=>b.classList.toggle("active",i===0));
+loadSetData();render();
 }
 
-loadSetData();
-
-let filter="all",editingId="",editingType="none";
-
 function saveData(){
-if(currentSetKey!=="all")
-localStorage.setItem(currentSet.storageKey,JSON.stringify(data));
+if(currentSetKey!=="all")localStorage.setItem(currentSet.storageKey,JSON.stringify(data));
 }
 
 function state(c){
-if(currentSetKey!=="all")
-return data[c.id]||{type:"none",qty:0};
-
-const key=
-c.id.startsWith("E1-")?"aikatsu-encore-e1-data-v2":
+if(currentSetKey!=="all")return data[c.id]||{type:"none",qty:0};
+const key=c.id.startsWith("E1-")?"aikatsu-encore-e1-data-v2":
 c.id.startsWith("E2-")?"aikatsu-encore-e2-data-v1":
 c.id.startsWith("E3-")?"aikatsu-encore-e3-data-v1":
 c.id.startsWith("E4-")?"aikatsu-encore-e4-data-v1":
 c.id.startsWith("E5-")?"aikatsu-encore-e5-data-v1":
-c.id.startsWith("E6-")?"aikatsu-encore-e6-data-v1":
-"aikatsu-encore-promo-data-v1";
-
+c.id.startsWith("E6-")?"aikatsu-encore-e6-data-v1":"aikatsu-encore-promo-data-v1";
 const d=JSON.parse(localStorage.getItem(key)||"{}");
-
 return d[c.id]||{type:"none",qty:0};
 }
 
 function render(){
-
-const s=document.getElementById("search").value.toLowerCase();
-const area=document.getElementById("cards");
-
+const s=document.getElementById("search").value.toLowerCase(),area=document.getElementById("cards");
 const filtered=cards.filter(c=>{
 const d=state(c);
-
-return c.id.toLowerCase().includes(s)&&
-(
-filter==="all"||
-(filter==="want"&&d.type==="want")||
-(filter==="have"&&d.type==="have"&&d.qty>0)
-);
+return c.id.toLowerCase().includes(s)&&(filter==="all"||(filter==="want"&&d.type==="want")||(filter==="have"&&d.type==="have"&&d.qty>0));
 });
-
-area.innerHTML=cards.length&&filtered.length
-?filtered.map(c=>{
-
+area.innerHTML=cards.length&&filtered.length?filtered.map(c=>{
 const d=state(c);
-
-const label=
-d.type==="want"
-?"♡ 欲しいもの":
-d.type==="have"&&d.qty>0
-?`📦 所持数 ${d.qty}枚`
-:"未設定";
-
-const cls=
-d.type==="want"
-?"want":
-d.type==="have"&&d.qty>0
-?"have"
-:"none";
-
+const label=d.type==="want"?"♡ 欲しいもの":d.type==="have"&&d.qty>0?`📦 所持数 ${d.qty}枚`:"未設定";
+const cls=d.type==="want"?"want":d.type==="have"&&d.qty>0?"have":"none";
 return `<div class="card">
-
-<button class="card-open" type="button" onclick="openModal('${c.id}')">
-
-<div class="card-image">
-${c.image
-?`<img src="${c.image}" alt="${c.id}">`
-:`<img src="junbi.webp.png" alt="準備中">`
-}
-</div>
-
+<button class="card-open" type="button" style="display:block;width:100%;padding:0;border:0;background:transparent;text-align:left;color:inherit;cursor:pointer" onclick="openModal('${c.id}')">
+<div class="card-image">${c.image?`<img src="${c.image}" alt="${c.id}">`:`<img src="junbi.webp.png" alt="準備中">`}</div>
 <div class="card-name">${c.id}</div>
-
 </button>
-
-<button class="status-button ${cls}" type="button" onclick="openModal('${c.id}')">
-${label}
-</button>
-
+<button class="status-button ${cls}" type="button" onclick="openModal('${c.id}')">${label}</button>
 </div>`;
-
-}).join("")
-:'<div class="empty">該当するカードがありません</div>';
-
+}).join(""):'<div class="empty">該当するカードがありません</div>';
 updateProgress();
 }
 
 function updateProgress(){
-
-const have=cards.filter(c=>
-state(c).type==="have"&&state(c).qty>0
-).length;
-
-const total=cards.length;
-
+const have=cards.filter(c=>state(c).type==="have"&&state(c).qty>0).length,total=cards.length;
 if(!total){
 document.getElementById("percent").textContent="準備中";
 document.getElementById("progress").style.width="0%";
 document.getElementById("count").textContent="カード登録後に使えます";
 return;
 }
-
 const p=Math.round(have/total*100);
-
 document.getElementById("percent").textContent=p+"%";
 document.getElementById("progress").style.width=p+"%";
 document.getElementById("count").textContent=have+" / "+total+" 枚";
 }
 
 function setFilter(t,b){
-
 filter=t;
-
-document.querySelectorAll(".controls button")
-.forEach(x=>x.classList.remove("active"));
-
-b.classList.add("active");
-
-render();
+document.querySelectorAll(".controls button").forEach(x=>x.classList.remove("active"));
+b.classList.add("active");render();
 }
 
 function openModal(id){
-
 editingId=id;
-
 const d=state(cards.find(c=>c.id===id));
-
 editingType=d.type||"none";
-
 document.getElementById("modalTitle").textContent=id;
 document.getElementById("qty").value=d.qty||1;
-
 updateChoice();
-
 document.getElementById("modal").classList.add("open");
 }
 
-function chooseType(t){
+function closeModal(){
+document.getElementById("modal").classList.remove("open");
+}
 
-editingType=t;
-updateChoice();
+function chooseType(t){
+editingType=t;updateChoice();
 }
 
 function updateChoice(){
-
-["none","want","have"].forEach(t=>
-document.getElementById(t+"Btn")
-.classList.toggle("selected",editingType===t)
-);
-
+["none","want","have"].forEach(t=>document.getElementById(t+"Btn").classList.toggle("selected",editingType===t));
 const q=document.getElementById("qty");
-
 q.style.display=editingType==="have"?"block":"none";
 q.disabled=editingType!=="have";
 }
 
 function saveCard(){
-
-const qty=Math.max(
-0,
-Math.min(
-99,
-Number(document.getElementById("qty").value)||0
-)
-);
-
+const qty=Math.max(0,Math.min(99,Number(document.getElementById("qty").value)||0));
 if(currentSetKey==="all"){
-
 const prefix=editingId.split("-")[0];
-
-const key=
-prefix==="E1"?"aikatsu-encore-e1-data-v2":
+const key=prefix==="E1"?"aikatsu-encore-e1-data-v2":
 prefix==="E2"?"aikatsu-encore-e2-data-v1":
 prefix==="E3"?"aikatsu-encore-e3-data-v1":
 prefix==="E4"?"aikatsu-encore-e4-data-v1":
 prefix==="E5"?"aikatsu-encore-e5-data-v1":
-prefix==="E6"?"aikatsu-encore-e6-data-v1":
-"aikatsu-encore-promo-data-v1";
-
+prefix==="E6"?"aikatsu-encore-e6-data-v1":"aikatsu-encore-promo-data-v1";
 const d=JSON.parse(localStorage.getItem(key)||"{}");
-
-d[editingId]=editingType==="have"
-?{type:"have",qty}
-:{type:editingType,qty:0};
-
+d[editingId]=editingType==="have"?{type:"have",qty}:{type:editingType,qty:0};
 localStorage.setItem(key,JSON.stringify(d));
-
 }else{
-
-data[editingId]=editingType==="have"
-?{type:"have",qty}
-:{type:editingType,qty:0};
-
+data[editingId]=editingType==="have"?{type:"have",qty}:{type:editingType,qty:0};
 saveData();
 }
-
-closeModal();
-render();
+closeModal();render();
 }
 
-document.getElementById("search")
-.addEventListener("input",render);
+function resetData(){
+if(!confirm("この弾のデータをリセットしますか？"))return;
+if(currentSetKey==="all"){
+["e1","e2","e3","e4","e5","e6","promo"].forEach(k=>localStorage.removeItem(sets[k].storageKey));
+}else{
+localStorage.removeItem(currentSet.storageKey);
+}
+loadSetData();render();
+}
 
+/* ===== 画像リスト作成・保存 ===== */
+function getListCards(type){
+return cards.filter(c=>{
+const d=state(c);
+return type==="want"
+?d.type==="want"
+:d.type==="have"&&d.qty>0;
+});
+}
+
+function loadImage(src){
+return new Promise(resolve=>{
+if(!src){resolve(null);return;}
+const img=new Image();
+img.onload=()=>resolve(img);
+img.onerror=()=>resolve(null);
+img.src=src;
+});
+}
+
+async function makeList(type){
+const list=getListCards(type);
+if(!list.length){
+alert(type==="want"?"欲しいものがありません。":"所持カードがありません。");
+return;
+}
+
+const title=type==="want"?"欲しいものリスト":"所持カードリスト";
+const width=1200, cardW=180, cardH=260, gap=24, top=150, side=40;
+const cols=5;
+const rows=Math.ceil(list.length/cols);
+const height=top+rows*(cardH+gap)+40;
+
+const canvas=document.createElement("canvas");
+canvas.width=width;
+canvas.height=height;
+const ctx=canvas.getContext("2d");
+
+ctx.fillStyle="#fff7fc";
+ctx.fillRect(0,0,width,height);
+
+ctx.fillStyle="#4a3b45";
+ctx.textAlign="center";
+ctx.font="bold 42px -apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif";
+ctx.fillText("♡ コンプチェッカー ♡",width/2,58);
+
+ctx.font="bold 30px -apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif";
+ctx.fillText(title,width/2,105);
+
+ctx.textAlign="left";
+ctx.font="18px -apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif";
+ctx.fillStyle="#777";
+ctx.fillText(currentSet.name+"　"+list.length+"枚",side,135);
+
+for(let i=0;i<list.length;i++){
+const c=list[i],d=state(c);
+const col=i%cols,row=Math.floor(i/cols);
+const x=side+col*(cardW+gap),y=top+row*(cardH+gap);
+
+ctx.fillStyle="#fff";
+ctx.beginPath();
+ctx.roundRect(x,y,cardW,cardH,14);
+ctx.fill();
+
+ctx.strokeStyle="#ead8e5";
+ctx.lineWidth=2;
+ctx.stroke();
+
+const img=await loadImage(c.image||"junbi.webp.png");
+if(img){
+const pad=8,iw=cardW-pad*2,ih=cardH-48;
+const scale=Math.min(iw/img.naturalWidth,ih/img.naturalHeight);
+const dw=img.naturalWidth*scale,dh=img.naturalHeight*scale;
+ctx.drawImage(img,x+(cardW-dw)/2,y+pad+(ih-dh)/2,dw,dh);
+}
+
+ctx.fillStyle="#4a3b45";
+ctx.textAlign="center";
+ctx.font="bold 18px -apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif";
+ctx.fillText(c.id,x+cardW/2,y+cardH-16);
+
+if(type==="have"){
+ctx.font="bold 15px -apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif";
+ctx.fillStyle="#7157b5";
+ctx.fillText("所持数 "+d.qty+"枚",x+cardW/2,y+cardH+20);
+}
+}
+
+const dataUrl=canvas.toDataURL("image/png");
+showListPreview(dataUrl,title);
+}
+
+function showListPreview(dataUrl,title){
+const old=document.getElementById("listPreview");
+if(old)old.remove();
+
+const wrap=document.createElement("div");
+wrap.className="list-preview";
+wrap.id="listPreview";
+wrap.innerHTML=`
+<div class="preview-sheet">
+<div class="preview-head">
+<strong>${title}</strong>
+<button type="button" onclick="closeListPreview()">閉じる</button>
+</div>
+<div class="preview-note">画像を長押しして「写真に保存」できます。</div>
+<div class="preview-body"><img id="generatedListImage" alt="${title}"></div>
+<div class="preview-actions">
+<button class="preview-save" type="button" onclick="saveListImage()">画像を保存</button>
+<button class="preview-close" type="button" onclick="closeListPreview()">閉じる</button>
+</div>
+</div>`;
+document.body.appendChild(wrap);
+document.getElementById("generatedListImage").src=dataUrl;
+window.currentListDataUrl=dataUrl;
+}
+
+function saveListImage(){
+const img=document.getElementById("generatedListImage");
+if(!img)return;
+
+const a=document.createElement("a");
+a.href=img.src;
+a.download="コンプチェッカー_"+(currentSet.name||"リスト")+".png";
+document.body.appendChild(a);
+a.click();
+a.remove();
+
+setTimeout(()=>{
+alert("保存画面が出ない場合は、表示された画像を長押しして「写真に保存」を選んでください。");
+},300);
+}
+
+function closeListPreview(){
+const p=document.getElementById("listPreview");
+if(p)p.remove();
+window.currentListDataUrl="";
+}
+
+document.getElementById("search").addEventListener("input",render);
+loadSetData();
 render();
-
 </script>
-
 </body>
 </html>
