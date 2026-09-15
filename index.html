@@ -197,7 +197,7 @@ function render(){
  const cls=d.type==="want"?"want":d.type==="have"&&d.qty>0?"have":"none";
  return `<div class="card">
    <button class="card-open" type="button" onclick="openModal('${c.id}')">
-     <div class="card-image">${c.image?`<img src="${c.image}" alt="${c.id}">`:"<div>画像準備中<br>（ダミーカード）</div>"}</div>
+     <div class="card-image">${c.image?`<img src="${c.image}" alt="${c.id}">`:`<img src="junbi.webp" alt="準備中">`}</div>
      <div class="card-name">${c.id}</div>
    </button>
    <button class="status-button ${cls}" type="button" onclick="openModal('${c.id}')">${label}</button>
