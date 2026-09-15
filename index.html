@@ -193,11 +193,11 @@ function render(){
  const filtered=cards.filter(c=>{const d=state(c);return c.id.toLowerCase().includes(s)&&(filter==="all"||(filter==="want"&&d.type==="want")||(filter==="have"&&d.type==="have"&&d.qty>0));});
  area.innerHTML=cards.length&&filtered.length?filtered.map(c=>{
  const d=state(c);
- const label=d.type==="want"?"♡ 欲しいもの":d.type==="have"&&d.qty>0?`📦 所持数 ${d.qty}枚`:"未設定";
+ const label=d.type==="want"?"♡ 欲しいもの":d.type==="have"&&d.qty>0?`📦 所持 ${d.qty}枚`:"未設定";
  const cls=d.type==="want"?"want":d.type==="have"&&d.qty>0?"have":"none";
  return `<div class="card">
    <button class="card-open" type="button" onclick="openModal('${c.id}')">
-     <div class="card-image">${c.image?`<img src="${c.image}" alt="${c.id}">`:`<img src="junbi.webp" alt="準備中">`}</div>
+     <div class="card-image">${c.image?`<img src="${c.image}" alt="${c.id}">`:`<img src="junbi.webp.png" alt="準備中">`}</div>
      <div class="card-name">${c.id}</div>
    </button>
    <button class="status-button ${cls}" type="button" onclick="openModal('${c.id}')">${label}</button>
