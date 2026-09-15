@@ -30,7 +30,7 @@ header h1{margin:0;font-size:28px}header p{margin:6px 0 0;font-size:14px}.contai
 .status-button.have{border-color:#c9b8ff;background:#f4f0ff;color:#7157b5}
 .status-button.none{border-color:#e5e5e5;background:#f7f7f7;color:#777}
 .modal.open{overflow:auto}
-.list-sheet{max-height:90vh;overflow:auto}.list-preview{width:100%;max-height:65vh;object-fit:contain;border-radius:12px;background:#fff;border:1px solid #ead8e5;display:block;-webkit-touch-callout:default;user-select:none}.list-sheet .sheet-actions{margin-top:12px}</style>
+.list-preview{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:30;overflow:auto;padding:20px 12px}.preview-sheet{max-width:700px;margin:20px auto;background:#fff;border-radius:18px;padding:14px}.preview-head{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:18px}.preview-head button{border:0;background:#eee;border-radius:10px;padding:8px 12px}.preview-note{font-size:13px;color:#777;margin:10px 0}.preview-body{text-align:center}.loading{padding:40px;color:#777}.generated-list-image{width:100%;height:auto;display:block;border-radius:10px;-webkit-touch-callout:default;user-select:none}</style>
 </head>
 <body>
 <header><h1>♡ コンプチェッカー ♡</h1><p>アイカツ！アンコール 第1弾</p></header>
@@ -47,7 +47,6 @@ header h1{margin:0;font-size:28px}header p{margin:6px 0 0;font-size:14px}.contai
 <input class="qty" id="qty" type="number" min="0" max="99" value="1" placeholder="所持数">
 <div class="sheet-actions"><button class="cancel" onclick="closeModal()">キャンセル</button><button class="save" onclick="saveCard()">保存</button></div>
 </div></div>
-<div class="modal" id="listModal"><div class="sheet list-sheet"><h2 id="listTitle">リスト画像</h2><div style="font-size:13px;color:#777;margin-bottom:10px">画像を長押しして「写真に保存」を選んでください</div><img id="listPreview" class="list-preview" alt="作成したリスト画像"><div class="sheet-actions"><button class="cancel" onclick="closeListPreview()">閉じる</button><button class="save" onclick="shareListImage()">共有</button></div></div></div>
 <script>
 const cards=[
   {id:"E1-01",image:""},
@@ -179,18 +178,37 @@ function resetData(){if(confirm("欲しいもの・所持数をすべてリセ�
 function makeList(type){
  const selected=cards.filter(c=>state(c).type===type&&((type==="have"&&state(c).qty>0)||type==="want"));
  if(!selected.length){alert(type==="want"?"欲しいものが選択されていません":"所持カードが登録されていません");return;}
- const canvas=document.createElement("canvas"),ctx=canvas.getContext("2d"),cols=4,cellW=260,cellH=360,rows=Math.ceil(selected.length/cols);
- canvas.width=cols*cellW;canvas.height=rows*cellH+90;ctx.fillStyle="#fff7fc";ctx.fillRect(0,0,canvas.width,canvas.height);
- ctx.fillStyle="#4a3b45";ctx.font="bold 28px sans-serif";ctx.fillText(type==="want"?"♡ 欲しいものリスト":"📦 所持カードリスト",20,42);ctx.font="16px sans-serif";ctx.fillText(new Date().toLocaleDateString("ja-JP"),20,68);
- let done=0;const finish=()=>{done++;if(done===selected.length){const dataUrl=canvas.toDataURL("image/png");showListPreview(dataUrl,type);}};
- selected.forEach((c,i)=>{const d=state(c),x=(i%cols)*cellW,y=Math.floor(i/cols)*cellH+90;ctx.fillStyle="#fff";ctx.fillRect(x+8,y+8,cellW-16,cellH-16);ctx.strokeStyle="#ead8e5";ctx.strokeRect(x+8,y+8,cellW-16,cellH-16);
- if(c.image){const img=new Image();img.onload=()=>{ctx.drawImage(img,x+35,y+25,190,250);finish();};img.onerror=finish;img.src=c.image;}else finish();
- ctx.fillStyle="#4a3b45";ctx.font="bold 18px sans-serif";ctx.fillText(c.id,x+18,y+292);if(type==="have")ctx.fillText("所持: "+d.qty+"枚",x+18,y+320);});
+ const old=document.getElementById("listPreview"); if(old) old.remove();
+ const wrap=document.createElement("div"); wrap.id="listPreview"; wrap.className="list-preview";
+ wrap.innerHTML='<div class="preview-sheet"><div class="preview-head"><strong>'+(type==="want"?"♡ 欲しいものリスト":"📦 所持カードリスト")+'</strong><button type="button" onclick="document.getElementById(\'listPreview\').remove()">閉じる</button></div><div class="preview-note">下の画像を長押しして「写真に保存」できます</div><div id="previewBody" class="preview-body"><div class="loading">画像を作成中…</div></div></div>';
+ document.body.appendChild(wrap);
+ const canvas=document.createElement("canvas"),ctx=canvas.getContext("2d"),cols=2,cellW=320,cellH=430,rows=Math.ceil(selected.length/cols);
+ canvas.width=cols*cellW;canvas.height=rows*cellH+90;
+ ctx.fillStyle="#fff7fc";ctx.fillRect(0,0,canvas.width,canvas.height);
+ ctx.fillStyle="#4a3b45";ctx.font="bold 28px sans-serif";ctx.fillText(type==="want"?"♡ 欲しいものリスト":"📦 所持カードリスト",20,42);
+ ctx.font="16px sans-serif";ctx.fillText(new Date().toLocaleDateString("ja-JP"),20,68);
+ let done=0;
+ const finish=()=>{done++; if(done===selected.length){
+   const url=canvas.toDataURL("image/png");
+   const body=document.getElementById("previewBody");
+   if(body){body.innerHTML='<img id="generatedListImage" class="generated-list-image" alt="作成したリスト画像">';document.getElementById("generatedListImage").src=url;}
+ }};
+ selected.forEach((c,i)=>{
+   const d=state(c),x=(i%cols)*cellW,y=Math.floor(i/cols)*cellH+90;
+   ctx.fillStyle="#fff";ctx.fillRect(x+10,y+10,cellW-20,cellH-20);
+   ctx.strokeStyle="#ead8e5";ctx.lineWidth=2;ctx.strokeRect(x+10,y+10,cellW-20,cellH-20);
+   ctx.fillStyle="#4a3b45";ctx.font="bold 20px sans-serif";ctx.fillText(c.id,x+22,y+305);
+   if(type==="have"){ctx.font="18px sans-serif";ctx.fillText("所持: "+d.qty+"枚",x+22,y+335);}
+   if(c.image){
+     const img=new Image();
+     img.onload=()=>{ctx.drawImage(img,x+55,y+35,210,260);finish();};
+     img.onerror=()=>{ctx.fillStyle="#f3d8ff";ctx.fillRect(x+55,y+35,210,260);ctx.fillStyle="#987c91";ctx.font="16px sans-serif";ctx.fillText("画像準備中",x+105,y+175);finish();};
+     img.src=c.image;
+   }else{
+     ctx.fillStyle="#f3d8ff";ctx.fillRect(x+55,y+35,210,260);ctx.fillStyle="#987c91";ctx.font="16px sans-serif";ctx.fillText("画像準備中",x+105,y+175);finish();
+   }
+ });
 }
-function showListPreview(dataUrl,type){document.getElementById("listTitle").textContent=type==="want"?"♡ 欲しいものリスト":"📦 所持カードリスト";document.getElementById("listPreview").src=dataUrl;document.getElementById("listModal").classList.add("show");}
-function closeListPreview(){document.getElementById("listModal").classList.remove("show");}
-async function shareListImage(){const img=document.getElementById("listPreview");if(!img.src)return;try{const res=await fetch(img.src);const blob=await res.blob();const file=new File([blob],"card-list.png",{type:"image/png"});if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({title:"カードリスト",files:[file]});}else{alert("このiPhoneでは共有機能が使えません。画像を長押しして「写真に保存」を選んでください。");}}catch(e){if(e.name!=="AbortError")alert("画像を保存する場合は、画像を長押しして「写真に保存」を選んでください。");}}
-document.getElementById("listModal").addEventListener("click",e=>{if(e.target.id==="listModal")closeListPreview();});
 document.getElementById("search").addEventListener("input",render);render();
 </script>
 </body></html>
