@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>コンプチェッカー</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+  background: #fff7fc;
+  color: #4a3b45;
+}
+
+header {
+  background: linear-gradient(135deg, #ff9dcc, #c9a7ff);
+  color: white;
+  text-align: center;
+  padding: 24px 16px;
+  border-radius: 0 0 24px 24px;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 28px;
+}
+
+header p {
+  margin: 6px 0 0;
+  font-size: 14px;
+}
+
+.container {
+  max-width: 700px;
+  margin: auto;
+  padding: 16px;
+}
+
+.progress-box {
+  background: white;
+  border-radius: 18px;
+  padding: 18px;
+  margin-bottom: 16px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+  text-align: center;
+}
+
+.progress-text {
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.progress-bar {
+  height: 14px;
+  background: #eee;
+  border-radius: 20px;
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #ff8fc7, #b99aff);
+  transition: width 0.3s;
+}
+
+.controls {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.controls button {
+  flex: 1;
+  border: none;
+  border-radius: 12px;
+  padding: 11px 4px;
+  background: white;
+  color: #6b5965;
+  font-size: 14px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.controls button.active {
+  background: #ff9dcc;
+  color: white;
+}
+
+.search {
+  width: 100%;
+  padding: 13px 15px;
+  border: 2px solid #f0dce8;
+  border-radius: 14px;
+  font-size: 16px;
+  margin-bottom: 16px;
+  outline: none;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.card {
+  background: white;
+  border-radius: 16px;
+  padding: 10px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.15s;
+}
+
+.card:active {
+  transform: scale(0.96);
+}
+
+.card-image {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #f3d8ff, #ffd9ed);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #987c91;
+  font-size: 13px;
+  text-align: center;
+}
+
+.card-name {
+  font-weight: bold;
+  margin-top: 8px;
+  font-size: 14px;
+}
+
+.card-number {
+  font-size: 12px;
+  color: #999;
+  margin-top: 3px;
+}
+
+.check {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #aaa;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.card.owned .check {
+  background: #ff72b6;
+}
+
+.card.owned {
+  outline: 3px solid #ffb5d8;
+}
+
+.empty {
+  text-align: center;
+  padding: 40px 10px;
+  color: #999;
+}
+
+.reset {
+  width: 100%;
+  margin-top: 20px;
+  padding: 12px;
+  border: none;
+  border-radius: 12px;
+  background: #eee;
+  color: #777;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>♡ コンプチェッカー ♡</h1>
+  <p>カードコレクション管理</p>
+</header>
+
+<div class="container">
+
+  <div class="progress-box">
+    <div>コンプリート率</div>
+    <div class="progress-text" id="percent">0%</div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress"></div>
+    </div>
+    <div id="count">0 / 10 枚</div>
+  </div>
+
+  <input
+    class="search"
+    id="search"
+    type="text"
+    placeholder="🔍 カード名を検索"
+  >
+
+  <div class="controls">
+    <button class="active" onclick="setFilter('all', this)">すべて</button>
+    <button onclick="setFilter('owned', this)">所持</button>
+    <button onclick="setFilter('missing', this)">未所持</button>
+  </div>
+
+  <div class="cards" id="cards"></div>
+
+  <button class="reset" onclick="resetData()">
+    所持データをリセット
+  </button>
+
+</div>
+
+<script>
+
+const cards = [
+  { id: 1, name: "きらきらカード 01" },
+  { id: 2, name: "きらきらカード 02" },
+  { id: 3, name: "きらきらカード 03" },
+  { id: 4, name: "きらきらカード 04" },
+  { id: 5, name: "きらきらカード 05" },
+  { id: 6, name: "きらきらカード 06" },
+  { id: 7, name: "きらきらカード 07" },
+  { id: 8, name: "きらきらカード 08" },
+  { id: 9, name: "きらきらカード 09" },
+  { id: 10, name: "きらきらカード 10" }
+];
+
+let owned = JSON.parse(
+  localStorage.getItem("comp-checker-owned") || "[]"
+);
+
+let filter = "all";
+
+function render() {
+
+  const searchText =
+    document.getElementById("search").value.toLowerCase();
+
+  const area = document.getElementById("cards");
+
+  const filtered = cards.filter(card => {
+
+    const matchesSearch =
+      card.name.toLowerCase().includes(searchText);
+
+    const isOwned = owned.includes(card.id);
+
+    const matchesFilter =
+      filter === "all" ||
+      (filter === "owned" && isOwned) ||
+      (filter === "missing" && !isOwned);
+
+    return matchesSearch && matchesFilter;
+  });
+
+  if (filtered.length === 0) {
+    area.innerHTML =
+      '<div class="empty">該当するカードがありません</div>';
+  } else {
+
+    area.innerHTML = filtered.map(card => {
+
+      const isOwned = owned.includes(card.id);
+
+      return `
+        <div class="card ${isOwned ? "owned" : ""}"
+             onclick="toggleCard(${card.id})">
+
+          <div class="check">
+            ${isOwned ? "✓" : ""}
+          </div>
+
+          <div class="card-image">
+            カード画像<br>
+            （後で変更できます）
+          </div>
+
+          <div class="card-name">
+            ${card.name}
+          </div>
+
+          <div class="card-number">
+            No.${String(card.id).padStart(3, "0")}
+          </div>
+
+        </div>
+      `;
+
+    }).join("");
+  }
+
+  updateProgress();
+}
+
+function toggleCard(id) {
+
+  if (owned.includes(id)) {
+    owned = owned.filter(x => x !== id);
+  } else {
+    owned.push(id);
+  }
+
+  localStorage.setItem(
+    "comp-checker-owned",
+    JSON.stringify(owned)
+  );
+
+  render();
+}
+
+function updateProgress() {
+
+  const total = cards.length;
+  const count = owned.length;
+  const percent =
+    total === 0 ? 0 : Math.round(count / total * 100);
+
+  document.getElementById("percent").textContent =
+    percent + "%";
+
+  document.getElementById("progress").style.width =
+    percent + "%";
+
+  document.getElementById("count").textContent =
+    count + " / " + total + " 枚";
+}
+
+function setFilter(type, button) {
+
+  filter = type;
+
+  document.querySelectorAll(".controls button")
+    .forEach(btn => btn.classList.remove("active"));
+
+  button.classList.add("active");
+
+  render();
+}
+
+function resetData() {
+
+  if (!confirm("所持データをすべてリセットしますか？")) {
+    return;
+  }
+
+  owned = [];
+
+  localStorage.removeItem("comp-checker-owned");
+
+  render();
+}
+
+document.getElementById("search")
+  .addEventListener("input", render);
+
+render();
+
+</script>
+
+</body>
+</html>
