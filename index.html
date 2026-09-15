@@ -34,7 +34,7 @@ header h1{margin:0;font-size:28px}header p{margin:6px 0 0;font-size:14px}.contai
 </head>
 <body>
 <header><h1>♡ コンプチェッカー ♡</h1><p id="setSubtitle">アイカツ！アンコール 第1弾</p></header>
-<div class="set-tabs" id="setTabs"><button class="set-tab active" onclick="switchSet('e1')">第1弾</button><button class="set-tab" onclick="switchSet('e2')">第2弾</button><button class="set-tab" onclick="switchSet('e3')">第3弾</button></div>
+<div class="set-tabs" id="setTabs"><button class="set-tab active" onclick="switchSet('all')">すべて</button><button class="set-tab" onclick="switchSet('e1')">1弾</button><button class="set-tab preparing" onclick="switchSet('e2')">2弾</button><button class="set-tab preparing" onclick="switchSet('e3')">3弾</button><button class="set-tab preparing" onclick="switchSet('e4')">4弾</button><button class="set-tab preparing" onclick="switchSet('e5')">5弾</button><button class="set-tab preparing" onclick="switchSet('e6')">6弾</button><button class="set-tab preparing" onclick="switchSet('promo')">プロモーション</button></div>
 <div class="container">
 <div class="progress-box"><div>コンプリート率</div><div class="progress-text" id="percent">0%</div><div class="progress-bar"><div class="progress-fill" id="progress"></div></div><div id="count">0 / 85 枚</div></div>
 <input class="search" id="search" type="text" placeholder="🔍 カード番号を検索">
@@ -139,37 +139,51 @@ const cardsE1=[
 const sets={
   e1:{name:"第1弾",subtitle:"アイカツ！アンコール 第1弾",cards:cardsE1,storageKey:"aikatsu-encore-e1-data-v2",oldKey:"aikatsu-encore-e1-owned"},
   e2:{name:"第2弾",subtitle:"アイカツ！アンコール 第2弾",cards:[],storageKey:"aikatsu-encore-e2-data-v1",oldKey:null},
-  e3:{name:"第3弾",subtitle:"アイカツ！アンコール 第3弾",cards:[],storageKey:"aikatsu-encore-e3-data-v1",oldKey:null}
+  e3:{name:"第3弾",subtitle:"アイカツ！アンコール 第3弾",cards:[],storageKey:"aikatsu-encore-e3-data-v1",oldKey:null},
+  e4:{name:"第4弾",subtitle:"アイカツ！アンコール 第4弾",cards:[],storageKey:"aikatsu-encore-e4-data-v1",oldKey:null},
+  e5:{name:"第5弾",subtitle:"アイカツ！アンコール 第5弾",cards:[],storageKey:"aikatsu-encore-e5-data-v1",oldKey:null},
+  e6:{name:"第6弾",subtitle:"アイカツ！アンコール 第6弾",cards:[],storageKey:"aikatsu-encore-e6-data-v1",oldKey:null},
+  promo:{name:"プロモーション",subtitle:"アイカツ！アンコール プロモーション",cards:[],storageKey:"aikatsu-encore-promo-data-v1",oldKey:null}
 };
+const allSet={name:"すべて",subtitle:"アイカツ！アンコール 全カード",cards:[],storageKey:"aikatsu-encore-all-view",oldKey:null};
 let currentSetKey="e1";
 let currentSet=sets[currentSetKey];
 let cards=currentSet.cards;
 let data={};
 function loadSetData(){
- data=JSON.parse(localStorage.getItem(currentSet.storageKey)||"{}");
- if(Object.keys(data).length===0 && currentSet.oldKey){
-   const oldOwned=JSON.parse(localStorage.getItem(currentSet.oldKey)||"[]");
-   if(Array.isArray(oldOwned) && oldOwned.length){
-     oldOwned.forEach(id=>data[id]={type:"have",qty:1});
-     localStorage.setItem(currentSet.storageKey,JSON.stringify(data));
-   }
- }
+  if(currentSetKey==="all"){
+    data={};
+    ["e1","e2","e3","e4","e5","e6","promo"].forEach(k=>{const d=JSON.parse(localStorage.getItem(sets[k].storageKey)||"{}");Object.assign(data,d);});
+    return;
+  }
+  data=JSON.parse(localStorage.getItem(currentSet.storageKey)||"{}");
+  if(Object.keys(data).length===0 && currentSet.oldKey){
+    const oldOwned=JSON.parse(localStorage.getItem(currentSet.oldKey)||"[]");
+    if(Array.isArray(oldOwned) && oldOwned.length){
+      oldOwned.forEach(id=>data[id]={type:"have",qty:1});
+      localStorage.setItem(currentSet.storageKey,JSON.stringify(data));
+    }
+  }
 }
 function switchSet(key){
- if(!sets[key])return;
- currentSetKey=key;currentSet=sets[key];cards=currentSet.cards;filter="all";
- document.querySelectorAll(".set-tab").forEach(b=>b.classList.remove("active"));
- const buttons=document.querySelectorAll(".set-tab");
- const idx=["e1","e2","e3"].indexOf(key);
- if(idx>=0)buttons[idx].classList.add("active");
- document.getElementById("setSubtitle").textContent=currentSet.subtitle;
- document.title="♡ コンプチェッカー ♡ "+currentSet.name;
- document.querySelectorAll(".controls button").forEach((b,i)=>b.classList.toggle("active",i===0));
- loadSetData();render();
+  if(key==="all"){
+    currentSetKey="all";currentSet=allSet;cards=[...sets.e1.cards,...sets.e2.cards,...sets.e3.cards,...sets.e4.cards,...sets.e5.cards,...sets.e6.cards,...sets.promo.cards];
+  }else if(sets[key]){
+    currentSetKey=key;currentSet=sets[key];cards=currentSet.cards;
+  }else{return;}
+  filter="all";
+  document.querySelectorAll(".set-tab").forEach(b=>b.classList.remove("active"));
+  const buttons=[...document.querySelectorAll(".set-tab")];
+  const idx=["all","e1","e2","e3","e4","e5","e6","promo"].indexOf(key);
+  if(idx>=0)buttons[idx].classList.add("active");
+  document.getElementById("setSubtitle").textContent=currentSet.subtitle;
+  document.title="♡ コンプチェッカー ♡ "+currentSet.name;
+  document.querySelectorAll(".controls button").forEach((b,i)=>b.classList.toggle("active",i===0));
+  loadSetData();render();
 }
 loadSetData();
 let filter="all",editingId="",editingType="none";
-function saveData(){localStorage.setItem(currentSet.storageKey,JSON.stringify(data));}
+function saveData(){if(currentSetKey!=="all")localStorage.setItem(currentSet.storageKey,JSON.stringify(data));}
 function state(c){return data[c.id]||{type:"none",qty:0}}
 function render(){
  const s=document.getElementById("search").value.toLowerCase(),area=document.getElementById("cards");
@@ -201,7 +215,7 @@ function updateChoice(){
 function saveCard(){const qty=Math.max(0,Math.min(99,Number(document.getElementById("qty").value)||0));data[editingId]=editingType==="have"?{type:"have",qty}:{type:editingType,qty:0};saveData();closeModal();render();}
 function closeModal(){document.getElementById("modal").classList.remove("open");editingId="";editingType="none";}
 document.getElementById("modal").addEventListener("click",e=>{if(e.target.id==="modal")closeModal();});
-function resetData(){if(confirm(currentSet.name+"の欲しいもの・所持数をすべてリセットしますか？")){data={};saveData();render();}}
+function resetData(){if(confirm(currentSet.name+"の欲しいもの・所持数をすべてリセットしますか？")){if(currentSetKey==="all"){["e1","e2","e3","e4","e5","e6","promo"].forEach(k=>localStorage.removeItem(sets[k].storageKey));}else{localStorage.removeItem(currentSet.storageKey);}data={};loadSetData();render();}}
 function makeList(type){
  const selected=cards.filter(c=>state(c).type===type&&((type==="have"&&state(c).qty>0)||type==="want"));
  if(!selected.length){alert(type==="want"?"欲しいものが選択されていません":"所持カードが登録されていません");return;}
