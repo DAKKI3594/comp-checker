@@ -1,2 +1,159 @@
 <!DOCTYPE html>
-<html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>コンプチェッカー</title><style>*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;background:#fff7fc;color:#4a3b45}header{background:linear-gradient(135deg,#ff9dcc,#c9a7ff);color:#fff;text-align:center;padding:24px 16px;border-radius:0 0 24px 24px}header h1{margin:0;font-size:28px}header p{margin:6px 0 0;font-size:14px}.container{max-width:700px;margin:auto;padding:16px}.progress-box{background:#fff;border-radius:18px;padding:18px;margin-bottom:16px;box-shadow:0 3px 12px rgba(0,0,0,.08);text-align:center}.progress-text{font-size:28px;font-weight:bold}.progress-bar{height:14px;background:#eee;border-radius:20px;overflow:hidden;margin-top:10px}.progress-fill{height:100%;width:0;background:linear-gradient(90deg,#ff8fc7,#b99aff);transition:width .3s}.controls{display:flex;gap:8px;margin-bottom:16px}.controls button{flex:1;border:0;border-radius:12px;padding:11px 4px;background:#fff;color:#6b5965;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,.08)}.controls button.active{background:#ff9dcc;color:#fff}.search{width:100%;padding:13px 15px;border:2px solid #f0dce8;border-radius:14px;font-size:16px;margin-bottom:16px;outline:0}.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.card{background:#fff;border-radius:16px;padding:10px;box-shadow:0 3px 10px rgba(0,0,0,.08);cursor:pointer;position:relative;transition:transform .15s}.card:active{transform:scale(.96)}.card-image{width:100%;aspect-ratio:3/4;border-radius:10px;background:linear-gradient(135deg,#f3d8ff,#ffd9ed);display:flex;align-items:center;justify-content:center;overflow:hidden;color:#987c91;font-size:13px;text-align:center}.card-image img{width:100%;height:100%;object-fit:contain;display:block}.dummy-label{padding:10px}.card-name{font-weight:bold;margin-top:8px;font-size:14px}.card-number{font-size:12px;color:#999;margin-top:3px}.dummy-note{font-size:11px;color:#aaa;margin-top:2px}.check{position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:50%;background:#aaa;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:bold;z-index:2}.card.owned .check{background:#ff72b6}.card.owned{outline:3px solid #ffb5d8}.empty{text-align:center;padding:40px 10px;color:#999}.reset{width:100%;margin-top:20px;padding:12px;border:0;border-radius:12px;background:#eee;color:#777}</style></head><body><header><h1>♡ コンプチェッカー ♡</h1><p>アイカツ！アンコール 第1弾</p></header><div class="container"><div class="progress-box"><div>コンプリート率</div><div class="progress-text" id="percent">0%</div><div class="progress-bar"><div class="progress-fill" id="progress"></div></div><div id="count">0 / 85 枚</div></div><input class="search" id="search" type="text" placeholder="🔍 カード番号を検索"><div class="controls"><button class="active" onclick="setFilter('all',this)">すべて</button><button onclick="setFilter('owned',this)">所持数</button><button onclick="setFilter('missing',this)">欲しいもの</button></div><div class="cards" id="cards"></div><button class="reset" onclick="resetData()">所持データをリセット</button></div><script>const cards=[{"id":"E1-01","name":"E1-01","image":"","dummy":true},{"id":"E1-02","name":"E1-02","image":"","dummy":true},{"id":"E1-03","name":"E1-03","image":"","dummy":true},{"id":"E1-04","name":"E1-04","image":"","dummy":true},{"id":"E1-05","name":"E1-05","image":"E1-05.webp","dummy":false},{"id":"E1-06","name":"E1-06","image":"E1-06.webp","dummy":false},{"id":"E1-07","name":"E1-07","image":"E1-07.webp","dummy":false},{"id":"E1-08","name":"E1-08","image":"E1-08.webp","dummy":false},{"id":"E1-09","name":"E1-09","image":"E1-09.webp","dummy":false},{"id":"E1-10","name":"E1-10","image":"E1-10.webp","dummy":false},{"id":"E1-11","name":"E1-11","image":"E1-11.webp","dummy":false},{"id":"E1-12","name":"E1-12","image":"E1-12.webp","dummy":false},{"id":"E1-13","name":"E1-13","image":"E1-13.webp","dummy":false},{"id":"E1-14","name":"E1-14","image":"E1-14.webp","dummy":false},{"id":"E1-15","name":"E1-15","image":"E1-15.webp","dummy":false},{"id":"E1-16","name":"E1-16","image":"E1-16.webp","dummy":false},{"id":"E1-17","name":"E1-17","image":"E1-17.webp","dummy":false},{"id":"E1-18","name":"E1-18","image":"E1-18.webp","dummy":false},{"id":"E1-19","name":"E1-19","image":"E1-19.webp","dummy":false},{"id":"E1-20","name":"E1-20","image":"E1-20.webp","dummy":false},{"id":"E1-21","name":"E1-21","image":"E1-21.webp","dummy":false},{"id":"E1-22","name":"E1-22","image":"E1-22.webp","dummy":false},{"id":"E1-23","name":"E1-23","image":"E1-23.webp","dummy":false},{"id":"E1-24","name":"E1-24","image":"E1-24.webp","dummy":false},{"id":"E1-25","name":"E1-25","image":"E1-25.webp","dummy":false},{"id":"E1-26","name":"E1-26","image":"E1-26.webp","dummy":false},{"id":"E1-27","name":"E1-27","image":"E1-27.webp","dummy":false},{"id":"E1-28","name":"E1-28","image":"E1-28.webp","dummy":false},{"id":"E1-29","name":"E1-29","image":"E1-29.webp","dummy":false},{"id":"E1-30","name":"E1-30","image":"","dummy":true},{"id":"E1-31","name":"E1-31","image":"","dummy":true},{"id":"E1-32","name":"E1-32","image":"","dummy":true},{"id":"E1-33","name":"E1-33","image":"","dummy":true},{"id":"E1-34","name":"E1-34","image":"","dummy":true},{"id":"E1-35","name":"E1-35","image":"","dummy":true},{"id":"E1-36","name":"E1-36","image":"","dummy":true},{"id":"E1-37","name":"E1-37","image":"E1-37.webp","dummy":false},{"id":"E1-38","name":"E1-38","image":"E1-38.webp","dummy":false},{"id":"E1-39","name":"E1-39","image":"E1-39.webp","dummy":false},{"id":"E1-40","name":"E1-40","image":"E1-40.webp","dummy":false},{"id":"E1-41","name":"E1-41","image":"E1-41.webp","dummy":false},{"id":"E1-42","name":"E1-42","image":"E1-42.webp","dummy":false},{"id":"E1-43","name":"E1-43","image":"E1-43.webp","dummy":false},{"id":"E1-44","name":"E1-44","image":"E1-44.webp","dummy":false},{"id":"E1-45","name":"E1-45","image":"E1-45.webp","dummy":false},{"id":"E1-46","name":"E1-46","image":"E1-46.webp","dummy":false},{"id":"E1-47","name":"E1-47","image":"E1-47.webp","dummy":false},{"id":"E1-48","name":"E1-48","image":"E1-48.webp","dummy":false},{"id":"E1-49","name":"E1-49","image":"E1-49.webp","dummy":false},{"id":"E1-50","name":"E1-50","image":"","dummy":true},{"id":"E1-51","name":"E1-51","image":"E1-51.webp","dummy":false},{"id":"E1-52","name":"E1-52","image":"E1-52.webp","dummy":false},{"id":"E1-53","name":"E1-53","image":"E1-53.webp","dummy":false},{"id":"E1-54","name":"E1-54","image":"E1-54.webp","dummy":false},{"id":"E1-55","name":"E1-55","image":"E1-55.webp","dummy":false},{"id":"E1-56","name":"E1-56","image":"E1-56.webp","dummy":false},{"id":"E1-57","name":"E1-57","image":"E1-57.webp","dummy":false},{"id":"E1-58","name":"E1-58","image":"E1-58.webp","dummy":false},{"id":"E1-59","name":"E1-59","image":"E1-59.webp","dummy":false},{"id":"E1-60","name":"E1-60","image":"E1-60.webp","dummy":false},{"id":"E1-61","name":"E1-61","image":"E1-61.webp","dummy":false},{"id":"E1-62","name":"E1-62","image":"E1-62.webp","dummy":false},{"id":"E1-63","name":"E1-63","image":"E1-63.webp","dummy":false},{"id":"E1-64","name":"E1-64","image":"E1-64.webp","dummy":false},{"id":"E1-65","name":"E1-65","image":"E1-65.webp","dummy":false},{"id":"E1-66","name":"E1-66","image":"E1-66.webp","dummy":false},{"id":"E1-67","name":"E1-67","image":"E1-67.webp","dummy":false},{"id":"E1-68","name":"E1-68","image":"E1-68.webp","dummy":false},{"id":"E1-69","name":"E1-69","image":"E1-69.webp","dummy":false},{"id":"E1-70","name":"E1-70","image":"E1-70.webp","dummy":false},{"id":"E1-71","name":"E1-71","image":"","dummy":true},{"id":"E1-72","name":"E1-72","image":"","dummy":true},{"id":"E1-73","name":"E1-73","image":"","dummy":true},{"id":"E1-74","name":"E1-74","image":"","dummy":true},{"id":"E1-75","name":"E1-75","image":"","dummy":true},{"id":"E1-76","name":"E1-76","image":"","dummy":true},{"id":"E1-77","name":"E1-77","image":"","dummy":true},{"id":"E1-78","name":"E1-78","image":"","dummy":true},{"id":"E1-79","name":"E1-79","image":"","dummy":true},{"id":"E1-80","name":"E1-80","image":"","dummy":true},{"id":"E1-81","name":"E1-81","image":"","dummy":true},{"id":"E1-82","name":"E1-82","image":"","dummy":true},{"id":"E1-83","name":"E1-83","image":"E1-83.webp","dummy":false},{"id":"E1-84","name":"E1-84","image":"E1-84.webp","dummy":false},{"id":"E1-85","name":"E1-85","image":"E1-85.webp","dummy":false}];let owned=JSON.parse(localStorage.getItem("aikatsu-encore-e1-owned")||"[]");let filter="all";function render(){const s=document.getElementById("search").value.toLowerCase();const area=document.getElementById("cards");const filtered=cards.filter(c=>(c.id.toLowerCase().includes(s)||c.name.toLowerCase().includes(s))&&(filter==="all"||(filter==="owned"&&owned.includes(c.id))||(filter==="missing"&&!owned.includes(c.id))));if(!filtered.length){area.innerHTML='<div class="empty">該当するカードがありません</div>'}else{area.innerHTML=filtered.map(c=>{const o=owned.includes(c.id);return `<div class="card ${o?'owned':''}" onclick="toggleCard('${c.id}')"><div class="check">${o?'✓':''}</div><div class="card-image">${c.image?`<img src="${c.image}" alt="${c.id}">`:'<div class="dummy-label">画像準備中<br>（ダミーカード）</div>'}</div><div class="card-name">${c.name}</div><div class="card-number">${c.id}</div>${c.dummy?'<div class="dummy-note">追加予定</div>':''}</div>`}).join("")}updateProgress()}function toggleCard(id){owned=owned.includes(id)?owned.filter(x=>x!==id):[...owned,id];localStorage.setItem("aikatsu-encore-e1-owned",JSON.stringify(owned));render()}function updateProgress(){const total=cards.length,count=owned.length,p=Math.round(count/total*100);document.getElementById("percent").textContent=p+"%";document.getElementById("progress").style.width=p+"%";document.getElementById("count").textContent=count+" / "+total+" 枚"}function setFilter(t,b){filter=t;document.querySelectorAll(".controls button").forEach(x=>x.classList.remove("active"));b.classList.add("active");render()}function resetData(){if(!confirm("所持データをすべてリセットしますか？"))return;owned=[];localStorage.removeItem("aikatsu-encore-e1-owned");render()}document.getElementById("search").addEventListener("input",render);render();</script></body></html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>♡ コンプチェッカー ♡</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;background:#fff7fc;color:#4a3b45}
+header{background:linear-gradient(135deg,#ff9dcc,#c9a7ff);color:#fff;text-align:center;padding:24px 16px;border-radius:0 0 24px 24px}
+header h1{margin:0;font-size:28px}header p{margin:6px 0 0;font-size:14px}.container{max-width:700px;margin:auto;padding:16px}
+.progress-box{background:#fff;border-radius:18px;padding:18px;margin-bottom:16px;box-shadow:0 3px 12px rgba(0,0,0,.08);text-align:center}
+.progress-text{font-size:28px;font-weight:bold}.progress-bar{height:14px;background:#eee;border-radius:20px;overflow:hidden;margin-top:10px}.progress-fill{height:100%;width:0;background:linear-gradient(90deg,#ff8fc7,#b99aff);transition:width .3s}
+.controls{display:flex;gap:8px;margin-bottom:12px}.controls button{flex:1;border:0;border-radius:12px;padding:11px 4px;background:#fff;color:#6b5965;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,.08)}.controls button.active{background:#ff9dcc;color:#fff}
+.search{width:100%;padding:13px 15px;border:2px solid #f0dce8;border-radius:14px;font-size:16px;margin-bottom:12px;outline:0}
+.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.card{background:#fff;border-radius:16px;padding:10px;box-shadow:0 3px 10px rgba(0,0,0,.08);cursor:pointer;position:relative}
+.card-image{width:100%;aspect-ratio:3/4;border-radius:10px;background:linear-gradient(135deg,#f3d8ff,#ffd9ed);display:flex;align-items:center;justify-content:center;overflow:hidden;color:#987c91;font-size:13px;text-align:center}.card-image img{width:100%;height:100%;object-fit:contain;display:block}
+.card-name{font-weight:bold;margin-top:8px;font-size:14px}.badges{display:flex;gap:5px;margin-top:7px;flex-wrap:wrap}.badge{font-size:11px;padding:3px 7px;border-radius:999px;background:#eee;color:#777}.badge.want{background:#ffd8ec;color:#d34d91}.badge.have{background:#e1d7ff;color:#7157b5}
+.empty{text-align:center;padding:40px 10px;color:#999}.actions{display:flex;gap:8px;margin-top:16px}.actions button,.reset{flex:1;padding:12px;border:0;border-radius:12px;font-size:14px}
+.actions button:first-child{background:#ff9dcc;color:#fff}.actions button:last-child{background:#c9a7ff;color:#fff}.reset{width:100%;margin-top:10px;background:#eee;color:#777}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;padding:20px;z-index:10}.modal.open{display:flex}
+.sheet{background:#fff;border-radius:20px;padding:20px;width:min(420px,100%);box-shadow:0 10px 40px rgba(0,0,0,.25)}.sheet h2{margin:0 0 12px}
+.choice{display:flex;gap:8px;margin:12px 0;flex-wrap:wrap}.choice button{flex:1;min-width:30%;padding:12px;border:2px solid #eee;border-radius:12px;background:#fff}.choice button.selected{border-color:#ff9dcc;background:#fff0f7}
+.qty{width:100%;padding:12px;border:2px solid #eee;border-radius:12px;font-size:18px}.sheet-actions{display:flex;gap:8px;margin-top:16px}.sheet-actions button{flex:1;padding:12px;border:0;border-radius:12px}.save{background:#ff9dcc;color:#fff}.cancel{background:#eee}
+</style>
+</head>
+<body>
+<header><h1>♡ コンプチェッカー ♡</h1><p>アイカツ！アンコール 第1弾</p></header>
+<div class="container">
+<div class="progress-box"><div>コンプリート率</div><div class="progress-text" id="percent">0%</div><div class="progress-bar"><div class="progress-fill" id="progress"></div></div><div id="count">0 / 85 枚</div></div>
+<input class="search" id="search" type="text" placeholder="🔍 カード番号を検索">
+<div class="controls"><button class="active" onclick="setFilter('all',this)">すべて</button><button onclick="setFilter('have',this)">所持数</button><button onclick="setFilter('want',this)">欲しいもの</button></div>
+<div class="cards" id="cards"></div>
+<div class="actions"><button onclick="makeList('want')">欲しいものリストを画像化</button><button onclick="makeList('have')">所持カードリストを画像化</button></div>
+<button class="reset" onclick="resetData()">データをリセット</button>
+</div>
+<div class="modal" id="modal"><div class="sheet"><h2 id="modalTitle">カード</h2>
+<div class="choice"><button id="noneBtn" onclick="chooseType('none')">未設定</button><button id="wantBtn" onclick="chooseType('want')">♡ 欲しいもの</button><button id="haveBtn" onclick="chooseType('have')">📦 所持数</button></div>
+<input class="qty" id="qty" type="number" min="0" max="99" value="1" placeholder="所持数">
+<div class="sheet-actions"><button class="cancel" onclick="closeModal()">キャンセル</button><button class="save" onclick="saveCard()">保存</button></div>
+</div></div>
+<script>
+const cards=[
+  {id:"E1-01",image:""},
+  {id:"E1-02",image:""},
+  {id:"E1-03",image:""},
+  {id:"E1-04",image:""},
+  {id:"E1-05",image:"E1-05.webp"},
+  {id:"E1-06",image:"E1-06.webp"},
+  {id:"E1-07",image:"E1-07.webp"},
+  {id:"E1-08",image:"E1-08.webp"},
+  {id:"E1-09",image:"E1-09.webp"},
+  {id:"E1-10",image:"E1-10.webp"},
+  {id:"E1-11",image:"E1-11.webp"},
+  {id:"E1-12",image:"E1-12.webp"},
+  {id:"E1-13",image:"E1-13.webp"},
+  {id:"E1-14",image:"E1-14.webp"},
+  {id:"E1-15",image:"E1-15.webp"},
+  {id:"E1-16",image:"E1-16.webp"},
+  {id:"E1-17",image:"E1-17.webp"},
+  {id:"E1-18",image:"E1-18.webp"},
+  {id:"E1-19",image:"E1-19.webp"},
+  {id:"E1-20",image:"E1-20.webp"},
+  {id:"E1-21",image:"E1-21.webp"},
+  {id:"E1-22",image:"E1-22.webp"},
+  {id:"E1-23",image:"E1-23.webp"},
+  {id:"E1-24",image:"E1-24.webp"},
+  {id:"E1-25",image:"E1-25.webp"},
+  {id:"E1-26",image:"E1-26.webp"},
+  {id:"E1-27",image:"E1-27.webp"},
+  {id:"E1-28",image:"E1-28.webp"},
+  {id:"E1-29",image:"E1-29.webp"},
+  {id:"E1-30",image:""},
+  {id:"E1-31",image:""},
+  {id:"E1-32",image:""},
+  {id:"E1-33",image:""},
+  {id:"E1-34",image:""},
+  {id:"E1-35",image:""},
+  {id:"E1-36",image:""},
+  {id:"E1-37",image:"E1-37.webp"},
+  {id:"E1-38",image:"E1-38.webp"},
+  {id:"E1-39",image:"E1-39.webp"},
+  {id:"E1-40",image:"E1-40.webp"},
+  {id:"E1-41",image:"E1-41.webp"},
+  {id:"E1-42",image:"E1-42.webp"},
+  {id:"E1-43",image:"E1-43.webp"},
+  {id:"E1-44",image:"E1-44.webp"},
+  {id:"E1-45",image:"E1-45.webp"},
+  {id:"E1-46",image:"E1-46.webp"},
+  {id:"E1-47",image:"E1-47.webp"},
+  {id:"E1-48",image:"E1-48.webp"},
+  {id:"E1-49",image:"E1-49.webp"},
+  {id:"E1-50",image:""},
+  {id:"E1-51",image:"E1-51.webp"},
+  {id:"E1-52",image:"E1-52.webp"},
+  {id:"E1-53",image:"E1-53.webp"},
+  {id:"E1-54",image:"E1-54.webp"},
+  {id:"E1-55",image:"E1-55.webp"},
+  {id:"E1-56",image:"E1-56.webp"},
+  {id:"E1-57",image:"E1-57.webp"},
+  {id:"E1-58",image:"E1-58.webp"},
+  {id:"E1-59",image:"E1-59.webp"},
+  {id:"E1-60",image:"E1-60.webp"},
+  {id:"E1-61",image:"E1-61.webp"},
+  {id:"E1-62",image:"E1-62.webp"},
+  {id:"E1-63",image:"E1-63.webp"},
+  {id:"E1-64",image:"E1-64.webp"},
+  {id:"E1-65",image:"E1-65.webp"},
+  {id:"E1-66",image:"E1-66.webp"},
+  {id:"E1-67",image:"E1-67.webp"},
+  {id:"E1-68",image:"E1-68.webp"},
+  {id:"E1-69",image:"E1-69.webp"},
+  {id:"E1-70",image:"E1-70.webp"},
+  {id:"E1-71",image:""},
+  {id:"E1-72",image:""},
+  {id:"E1-73",image:""},
+  {id:"E1-74",image:""},
+  {id:"E1-75",image:""},
+  {id:"E1-76",image:""},
+  {id:"E1-77",image:""},
+  {id:"E1-78",image:""},
+  {id:"E1-79",image:""},
+  {id:"E1-80",image:""},
+  {id:"E1-81",image:""},
+  {id:"E1-82",image:""},
+  {id:"E1-83",image:"E1-83.webp"},
+  {id:"E1-84",image:"E1-84.webp"},
+  {id:"E1-85",image:"E1-85.webp"}
+];
+let data=JSON.parse(localStorage.getItem("aikatsu-encore-e1-data-v2")||"{}");
+let filter="all",editingId="",editingType="none";
+function saveData(){localStorage.setItem("aikatsu-encore-e1-data-v2",JSON.stringify(data));}
+function state(c){return data[c.id]||{type:"none",qty:0}}
+function render(){
+ const s=document.getElementById("search").value.toLowerCase(),area=document.getElementById("cards");
+ const filtered=cards.filter(c=>{const d=state(c);return c.id.toLowerCase().includes(s)&&(filter==="all"||(filter==="want"&&d.type==="want")||(filter==="have"&&d.type==="have"&&d.qty>0));});
+ area.innerHTML=filtered.length?filtered.map(c=>{const d=state(c);return `<div class="card" onclick="openModal('${c.id}')"><div class="card-image">${c.image?`<img src="${c.image}" alt="${c.id}">`:"<div>画像準備中<br>（ダミーカード）</div>"}</div><div class="card-name">${c.id}</div><div class="badges">${d.type==="want"?'<span class="badge want">♡ 欲しいもの</span>':d.type==="have"&&d.qty>0?`<span class="badge have">📦 所持 ${d.qty}枚</span>`:""}</div></div>`}).join(""):'<div class="empty">該当するカードがありません</div>';
+ updateProgress();
+}
+function updateProgress(){const have=cards.filter(c=>state(c).type==="have"&&state(c).qty>0).length,p=Math.round(have/cards.length*100);document.getElementById("percent").textContent=p+"%";document.getElementById("progress").style.width=p+"%";document.getElementById("count").textContent=have+" / "+cards.length+" 枚";}
+function setFilter(t,b){filter=t;document.querySelectorAll(".controls button").forEach(x=>x.classList.remove("active"));b.classList.add("active");render();}
+function openModal(id){editingId=id;const d=state(cards.find(c=>c.id===id));editingType=d.type||"none";document.getElementById("modalTitle").textContent=id;document.getElementById("qty").value=d.qty||1;updateChoice();document.getElementById("modal").classList.add("open");}
+function chooseType(t){editingType=t;updateChoice();}
+function updateChoice(){["none","want","have"].forEach(t=>document.getElementById(t+"Btn").classList.toggle("selected",editingType===t));document.getElementById("qty").style.display=editingType==="have"?"block":"none";}
+function saveCard(){const qty=Math.max(0,Math.min(99,Number(document.getElementById("qty").value)||0));data[editingId]=editingType==="have"?{type:"have",qty}:{type:editingType,qty:0};saveData();closeModal();render();}
+function closeModal(){document.getElementById("modal").classList.remove("open");}
+function resetData(){if(confirm("欲しいもの・所持数をすべてリセットしますか？")){data={};saveData();render();}}
+function makeList(type){
+ const selected=cards.filter(c=>state(c).type===type&&((type==="have"&&state(c).qty>0)||type==="want"));
+ if(!selected.length){alert(type==="want"?"欲しいものが選択されていません":"所持カードが登録されていません");return;}
+ const canvas=document.createElement("canvas"),ctx=canvas.getContext("2d"),cols=4,cellW=260,cellH=360,rows=Math.ceil(selected.length/cols);
+ canvas.width=cols*cellW;canvas.height=rows*cellH+90;ctx.fillStyle="#fff7fc";ctx.fillRect(0,0,canvas.width,canvas.height);
+ ctx.fillStyle="#4a3b45";ctx.font="bold 28px sans-serif";ctx.fillText(type==="want"?"♡ 欲しいものリスト":"📦 所持カードリスト",20,42);ctx.font="16px sans-serif";ctx.fillText(new Date().toLocaleDateString("ja-JP"),20,68);
+ let done=0;const finish=()=>{done++;if(done===selected.length){const a=document.createElement("a");a.download=(type==="want"?"欲しいもの":"所持カード")+"_list.png";a.href=canvas.toDataURL("image/png");a.click();}};
+ selected.forEach((c,i)=>{const d=state(c),x=(i%cols)*cellW,y=Math.floor(i/cols)*cellH+90;ctx.fillStyle="#fff";ctx.fillRect(x+8,y+8,cellW-16,cellH-16);ctx.strokeStyle="#ead8e5";ctx.strokeRect(x+8,y+8,cellW-16,cellH-16);
+ if(c.image){const img=new Image();img.onload=()=>{ctx.drawImage(img,x+35,y+25,190,250);finish();};img.onerror=finish;img.src=c.image;}else finish();
+ ctx.fillStyle="#4a3b45";ctx.font="bold 18px sans-serif";ctx.fillText(c.id,x+18,y+292);if(type==="have")ctx.fillText("所持: "+d.qty+"枚",x+18,y+320);});
+}
+document.getElementById("search").addEventListener("input",render);render();
+</script>
+</body></html>
