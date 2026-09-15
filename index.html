@@ -30,7 +30,7 @@ header h1{margin:0;font-size:28px}header p{margin:6px 0 0;font-size:14px}.contai
 .status-button.have{border-color:#c9b8ff;background:#f4f0ff;color:#7157b5}
 .status-button.none{border-color:#e5e5e5;background:#f7f7f7;color:#777}
 .modal.open{overflow:auto}
-</style>
+.list-sheet{max-height:90vh;overflow:auto}.list-preview{width:100%;max-height:65vh;object-fit:contain;border-radius:12px;background:#fff;border:1px solid #ead8e5;display:block;-webkit-touch-callout:default;user-select:none}.list-sheet .sheet-actions{margin-top:12px}</style>
 </head>
 <body>
 <header><h1>♡ コンプチェッカー ♡</h1><p>アイカツ！アンコール 第1弾</p></header>
@@ -47,6 +47,7 @@ header h1{margin:0;font-size:28px}header p{margin:6px 0 0;font-size:14px}.contai
 <input class="qty" id="qty" type="number" min="0" max="99" value="1" placeholder="所持数">
 <div class="sheet-actions"><button class="cancel" onclick="closeModal()">キャンセル</button><button class="save" onclick="saveCard()">保存</button></div>
 </div></div>
+<div class="modal" id="listModal"><div class="sheet list-sheet"><h2 id="listTitle">リスト画像</h2><div style="font-size:13px;color:#777;margin-bottom:10px">画像を長押しして「写真に保存」を選んでください</div><img id="listPreview" class="list-preview" alt="作成したリスト画像"><div class="sheet-actions"><button class="cancel" onclick="closeListPreview()">閉じる</button><button class="save" onclick="shareListImage()">共有</button></div></div></div>
 <script>
 const cards=[
   {id:"E1-01",image:""},
@@ -181,11 +182,15 @@ function makeList(type){
  const canvas=document.createElement("canvas"),ctx=canvas.getContext("2d"),cols=4,cellW=260,cellH=360,rows=Math.ceil(selected.length/cols);
  canvas.width=cols*cellW;canvas.height=rows*cellH+90;ctx.fillStyle="#fff7fc";ctx.fillRect(0,0,canvas.width,canvas.height);
  ctx.fillStyle="#4a3b45";ctx.font="bold 28px sans-serif";ctx.fillText(type==="want"?"♡ 欲しいものリスト":"📦 所持カードリスト",20,42);ctx.font="16px sans-serif";ctx.fillText(new Date().toLocaleDateString("ja-JP"),20,68);
- let done=0;const finish=()=>{done++;if(done===selected.length){const a=document.createElement("a");a.download=(type==="want"?"欲しいもの":"所持カード")+"_list.png";a.href=canvas.toDataURL("image/png");a.click();}};
+ let done=0;const finish=()=>{done++;if(done===selected.length){const dataUrl=canvas.toDataURL("image/png");showListPreview(dataUrl,type);}};
  selected.forEach((c,i)=>{const d=state(c),x=(i%cols)*cellW,y=Math.floor(i/cols)*cellH+90;ctx.fillStyle="#fff";ctx.fillRect(x+8,y+8,cellW-16,cellH-16);ctx.strokeStyle="#ead8e5";ctx.strokeRect(x+8,y+8,cellW-16,cellH-16);
  if(c.image){const img=new Image();img.onload=()=>{ctx.drawImage(img,x+35,y+25,190,250);finish();};img.onerror=finish;img.src=c.image;}else finish();
  ctx.fillStyle="#4a3b45";ctx.font="bold 18px sans-serif";ctx.fillText(c.id,x+18,y+292);if(type==="have")ctx.fillText("所持: "+d.qty+"枚",x+18,y+320);});
 }
+function showListPreview(dataUrl,type){document.getElementById("listTitle").textContent=type==="want"?"♡ 欲しいものリスト":"📦 所持カードリスト";document.getElementById("listPreview").src=dataUrl;document.getElementById("listModal").classList.add("show");}
+function closeListPreview(){document.getElementById("listModal").classList.remove("show");}
+async function shareListImage(){const img=document.getElementById("listPreview");if(!img.src)return;try{const res=await fetch(img.src);const blob=await res.blob();const file=new File([blob],"card-list.png",{type:"image/png"});if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({title:"カードリスト",files:[file]});}else{alert("このiPhoneでは共有機能が使えません。画像を長押しして「写真に保存」を選んでください。");}}catch(e){if(e.name!=="AbortError")alert("画像を保存する場合は、画像を長押しして「写真に保存」を選んでください。");}}
+document.getElementById("listModal").addEventListener("click",e=>{if(e.target.id==="listModal")closeListPreview();});
 document.getElementById("search").addEventListener("input",render);render();
 </script>
 </body></html>
