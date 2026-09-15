@@ -180,33 +180,60 @@ function makeList(type){
  if(!selected.length){alert(type==="want"?"欲しいものが選択されていません":"所持カードが登録されていません");return;}
  const old=document.getElementById("listPreview"); if(old) old.remove();
  const wrap=document.createElement("div"); wrap.id="listPreview"; wrap.className="list-preview";
- wrap.innerHTML='<div class="preview-sheet"><div class="preview-head"><strong>'+(type==="want"?"♡ 欲しいものリスト":"📦 所持カードリスト")+'</strong><button type="button" onclick="document.getElementById(\'listPreview\').remove()">閉じる</button></div><div class="preview-note">下の画像を長押しして「写真に保存」できます</div><div id="previewBody" class="preview-body"><div class="loading">画像を作成中…</div></div></div>';
+ wrap.innerHTML='<div class="preview-sheet"><div class="preview-head"><strong>'+(type==="want"?"♡ 欲しいものリスト":"📦 所持カードリスト")+'</strong><button type="button" onclick="document.getElementById(\'listPreview\').remove()">閉じる</button></div><div class="preview-note">横8枚 × 縦5枚（1画像40枚）／数字はカードの下に表示されます。画像を長押しして「写真に保存」できます</div><div id="previewBody" class="preview-body"><div class="loading">画像を作成中…</div></div></div>';
  document.body.appendChild(wrap);
- const canvas=document.createElement("canvas"),ctx=canvas.getContext("2d"),cols=2,cellW=320,cellH=430,rows=Math.ceil(selected.length/cols);
- canvas.width=cols*cellW;canvas.height=rows*cellH+90;
- ctx.fillStyle="#fff7fc";ctx.fillRect(0,0,canvas.width,canvas.height);
- ctx.fillStyle="#4a3b45";ctx.font="bold 28px sans-serif";ctx.fillText(type==="want"?"♡ 欲しいものリスト":"📦 所持カードリスト",20,42);
- ctx.font="16px sans-serif";ctx.fillText(new Date().toLocaleDateString("ja-JP"),20,68);
- let done=0;
- const finish=()=>{done++; if(done===selected.length){
-   const url=canvas.toDataURL("image/png");
-   const body=document.getElementById("previewBody");
-   if(body){body.innerHTML='<img id="generatedListImage" class="generated-list-image" alt="作成したリスト画像">';document.getElementById("generatedListImage").src=url;}
- }};
- selected.forEach((c,i)=>{
-   const d=state(c),x=(i%cols)*cellW,y=Math.floor(i/cols)*cellH+90;
-   ctx.fillStyle="#fff";ctx.fillRect(x+10,y+10,cellW-20,cellH-20);
-   ctx.strokeStyle="#ead8e5";ctx.lineWidth=2;ctx.strokeRect(x+10,y+10,cellW-20,cellH-20);
-   ctx.fillStyle="#4a3b45";ctx.font="bold 20px sans-serif";ctx.fillText(c.id,x+22,y+305);
-   if(type==="have"){ctx.font="18px sans-serif";ctx.fillText("所持: "+d.qty+"枚",x+22,y+335);}
-   if(c.image){
-     const img=new Image();
-     img.onload=()=>{ctx.drawImage(img,x+55,y+35,210,260);finish();};
-     img.onerror=()=>{ctx.fillStyle="#f3d8ff";ctx.fillRect(x+55,y+35,210,260);ctx.fillStyle="#987c91";ctx.font="16px sans-serif";ctx.fillText("画像準備中",x+105,y+175);finish();};
-     img.src=c.image;
-   }else{
-     ctx.fillStyle="#f3d8ff";ctx.fillRect(x+55,y+35,210,260);ctx.fillStyle="#987c91";ctx.font="16px sans-serif";ctx.fillText("画像準備中",x+105,y+175);finish();
-   }
+ const body=document.getElementById("previewBody");
+ const cols=8,rows=5,perPage=cols*rows,cellW=300,cellH=560,marginX=18,top=90;
+ const pages=[];
+ for(let page=0;page<Math.ceil(selected.length/perPage);page++){
+   const pageItems=selected.slice(page*perPage,(page+1)*perPage);
+   const canvas=document.createElement("canvas"),ctx=canvas.getContext("2d");
+   canvas.width=cols*cellW+marginX*2;canvas.height=rows*cellH+top+30;
+   ctx.fillStyle="#ffffff";ctx.fillRect(0,0,canvas.width,canvas.height);
+   ctx.fillStyle="#24305f";ctx.font="bold 30px sans-serif";ctx.textAlign="center";
+   ctx.fillText(type==="want"?"♡ 欲しいものリスト":"📦 所持カードリスト",canvas.width/2,42);
+   ctx.fillStyle="#777";ctx.font="16px sans-serif";
+   ctx.fillText((page+1)+" / "+Math.ceil(selected.length/perPage),canvas.width/2,68);
+   pages.push({canvas,ctx,pageItems});
+ }
+ const images=[];
+ let remaining=selected.length;
+ const addResult=()=>{
+   remaining--;
+   if(remaining>0)return;
+   body.innerHTML="";
+   pages.forEach((p,pi)=>{
+     const block=document.createElement("div");block.className="generated-page";
+     const img=document.createElement("img");img.className="generated-list-image";img.alt="作成したリスト画像 "+(pi+1);
+     img.src=p.canvas.toDataURL("image/png");
+     block.appendChild(img);body.appendChild(block);
+   });
+ };
+ pages.forEach((p)=>{
+   p.pageItems.forEach((c,i)=>{
+     const d=state(c),x=marginX+(i%cols)*cellW,y=top+Math.floor(i/cols)*cellH;
+     ctx=p.ctx;
+     ctx.fillStyle="#fff";ctx.fillRect(x+8,y+8,cellW-16,cellH-16);
+     ctx.strokeStyle="#27324d";ctx.lineWidth=3;ctx.strokeRect(x+8,y+8,cellW-16,cellH-16);
+     const drawPlaceholder=()=>{
+       ctx.fillStyle="#f3d8ff";ctx.fillRect(x+40,y+28,cellW-80,330);
+       ctx.fillStyle="#987c91";ctx.font="16px sans-serif";ctx.textAlign="center";ctx.fillText("画像準備中",x+cellW/2,y+200);
+       drawText();
+     };
+     const drawText=()=>{
+       ctx.textAlign="center";
+       ctx.fillStyle="#222";ctx.font="bold 16px sans-serif";ctx.fillText(c.id,x+cellW/2,y+385);
+       ctx.fillStyle=type==="have"?"#1638c9":"#1638c9";
+       ctx.font='bold 48px "Comic Sans MS","Hiragino Maru Gothic ProN",sans-serif';
+       ctx.fillText(type==="have"?String(d.qty):"♡",x+cellW/2,y+445);
+     };
+     if(c.image){
+       const img=new Image();
+       img.onload=()=>{ctx.drawImage(img,x+40,y+28,cellW-80,330);drawText();addResult();};
+       img.onerror=()=>{drawPlaceholder();addResult();};
+       img.src=c.image;
+     }else{drawPlaceholder();addResult();}
+   });
  });
 }
 document.getElementById("search").addEventListener("input",render);render();
