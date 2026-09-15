@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>♡ コンプチェッカー ♡</title>
+<title>♡ コンプチェッカー ♡ v2.1</title>
 <style>
 *{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;background:#fff7fc;color:#4a3b45}
 header{background:linear-gradient(135deg,#ff9dcc,#c9a7ff);color:#fff;text-align:center;padding:24px 16px;border-radius:0 0 24px 24px}
@@ -20,6 +20,16 @@ header h1{margin:0;font-size:28px}header p{margin:6px 0 0;font-size:14px}.contai
 .sheet{background:#fff;border-radius:20px;padding:20px;width:min(420px,100%);box-shadow:0 10px 40px rgba(0,0,0,.25)}.sheet h2{margin:0 0 12px}
 .choice{display:flex;gap:8px;margin:12px 0;flex-wrap:wrap}.choice button{flex:1;min-width:30%;padding:12px;border:2px solid #eee;border-radius:12px;background:#fff}.choice button.selected{border-color:#ff9dcc;background:#fff0f7}
 .qty{width:100%;padding:12px;border:2px solid #eee;border-radius:12px;font-size:18px}.sheet-actions{display:flex;gap:8px;margin-top:16px}.sheet-actions button{flex:1;padding:12px;border:0;border-radius:12px}.save{background:#ff9dcc;color:#fff}.cancel{background:#eee}
+
+.card{padding:10px}
+.card-open{display:block;width:100%;padding:0;border:0;background:transparent;text-align:left;color:inherit;cursor:pointer}
+.card-open:active .card-image{transform:scale(.98)}
+.card-image{transition:transform .12s}
+.status-button{width:100%;margin-top:9px;padding:10px 6px;border:2px solid #eee;border-radius:12px;background:#f7f7f7;color:#777;font-size:13px;font-weight:600;cursor:pointer}
+.status-button.want{border-color:#ffb6d8;background:#fff0f7;color:#d34d91}
+.status-button.have{border-color:#c9b8ff;background:#f4f0ff;color:#7157b5}
+.status-button.none{border-color:#e5e5e5;background:#f7f7f7;color:#777}
+.modal.open{overflow:auto}
 </style>
 </head>
 <body>
@@ -33,7 +43,7 @@ header h1{margin:0;font-size:28px}header p{margin:6px 0 0;font-size:14px}.contai
 <button class="reset" onclick="resetData()">データをリセット</button>
 </div>
 <div class="modal" id="modal"><div class="sheet"><h2 id="modalTitle">カード</h2>
-<div class="choice"><button id="noneBtn" onclick="chooseType('none')">未設定</button><button id="wantBtn" onclick="chooseType('want')">♡ 欲しいもの</button><button id="haveBtn" onclick="chooseType('have')">📦 所持数</button></div>
+<div style="font-size:13px;color:#777;margin-bottom:6px">このカードの状態を選んでください</div><div class="choice"><button id="noneBtn" onclick="chooseType('none')">未設定</button><button id="wantBtn" onclick="chooseType('want')">♡ 欲しいもの</button><button id="haveBtn" onclick="chooseType('have')">📦 所持数</button></div>
 <input class="qty" id="qty" type="number" min="0" max="99" value="1" placeholder="所持数">
 <div class="sheet-actions"><button class="cancel" onclick="closeModal()">キャンセル</button><button class="save" onclick="saveCard()">保存</button></div>
 </div></div>
@@ -126,22 +136,44 @@ const cards=[
   {id:"E1-85",image:"E1-85.webp"}
 ];
 let data=JSON.parse(localStorage.getItem("aikatsu-encore-e1-data-v2")||"{}");
+const oldOwned=JSON.parse(localStorage.getItem("aikatsu-encore-e1-owned")||"[]");
+if(Object.keys(data).length===0 && Array.isArray(oldOwned) && oldOwned.length){
+ oldOwned.forEach(id=>data[id]={type:"have",qty:1});
+ localStorage.setItem("aikatsu-encore-e1-data-v2",JSON.stringify(data));
+}
 let filter="all",editingId="",editingType="none";
 function saveData(){localStorage.setItem("aikatsu-encore-e1-data-v2",JSON.stringify(data));}
 function state(c){return data[c.id]||{type:"none",qty:0}}
 function render(){
  const s=document.getElementById("search").value.toLowerCase(),area=document.getElementById("cards");
  const filtered=cards.filter(c=>{const d=state(c);return c.id.toLowerCase().includes(s)&&(filter==="all"||(filter==="want"&&d.type==="want")||(filter==="have"&&d.type==="have"&&d.qty>0));});
- area.innerHTML=filtered.length?filtered.map(c=>{const d=state(c);return `<div class="card" onclick="openModal('${c.id}')"><div class="card-image">${c.image?`<img src="${c.image}" alt="${c.id}">`:"<div>画像準備中<br>（ダミーカード）</div>"}</div><div class="card-name">${c.id}</div><div class="badges">${d.type==="want"?'<span class="badge want">♡ 欲しいもの</span>':d.type==="have"&&d.qty>0?`<span class="badge have">📦 所持 ${d.qty}枚</span>`:""}</div></div>`}).join(""):'<div class="empty">該当するカードがありません</div>';
+ area.innerHTML=filtered.length?filtered.map(c=>{
+ const d=state(c);
+ const label=d.type==="want"?"♡ 欲しいもの":d.type==="have"&&d.qty>0?`📦 所持数 ${d.qty}枚`:"未設定";
+ const cls=d.type==="want"?"want":d.type==="have"&&d.qty>0?"have":"none";
+ return `<div class="card">
+   <button class="card-open" type="button" onclick="openModal('${c.id}')">
+     <div class="card-image">${c.image?`<img src="${c.image}" alt="${c.id}">`:"<div>画像準備中<br>（ダミーカード）</div>"}</div>
+     <div class="card-name">${c.id}</div>
+   </button>
+   <button class="status-button ${cls}" type="button" onclick="openModal('${c.id}')">${label}</button>
+ </div>`;
+}).join(""):'<div class="empty">該当するカードがありません</div>';
  updateProgress();
 }
 function updateProgress(){const have=cards.filter(c=>state(c).type==="have"&&state(c).qty>0).length,p=Math.round(have/cards.length*100);document.getElementById("percent").textContent=p+"%";document.getElementById("progress").style.width=p+"%";document.getElementById("count").textContent=have+" / "+cards.length+" 枚";}
 function setFilter(t,b){filter=t;document.querySelectorAll(".controls button").forEach(x=>x.classList.remove("active"));b.classList.add("active");render();}
 function openModal(id){editingId=id;const d=state(cards.find(c=>c.id===id));editingType=d.type||"none";document.getElementById("modalTitle").textContent=id;document.getElementById("qty").value=d.qty||1;updateChoice();document.getElementById("modal").classList.add("open");}
 function chooseType(t){editingType=t;updateChoice();}
-function updateChoice(){["none","want","have"].forEach(t=>document.getElementById(t+"Btn").classList.toggle("selected",editingType===t));document.getElementById("qty").style.display=editingType==="have"?"block":"none";}
+function updateChoice(){
+ ["none","want","have"].forEach(t=>document.getElementById(t+"Btn").classList.toggle("selected",editingType===t));
+ const q=document.getElementById("qty");
+ q.style.display=editingType==="have"?"block":"none";
+ q.disabled=editingType!=="have";
+}
 function saveCard(){const qty=Math.max(0,Math.min(99,Number(document.getElementById("qty").value)||0));data[editingId]=editingType==="have"?{type:"have",qty}:{type:editingType,qty:0};saveData();closeModal();render();}
-function closeModal(){document.getElementById("modal").classList.remove("open");}
+function closeModal(){document.getElementById("modal").classList.remove("open");editingId="";editingType="none";}
+document.getElementById("modal").addEventListener("click",e=>{if(e.target.id==="modal")closeModal();});
 function resetData(){if(confirm("欲しいもの・所持数をすべてリセットしますか？")){data={};saveData();render();}}
 function makeList(type){
  const selected=cards.filter(c=>state(c).type===type&&((type==="have"&&state(c).qty>0)||type==="want"));
