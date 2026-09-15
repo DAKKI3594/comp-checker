@@ -6,7 +6,7 @@
 <style>
 *{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;background:#fff7fc;color:#4a3b45}
 header{background:linear-gradient(135deg,#ff9dcc,#c9a7ff);color:#fff;text-align:center;padding:24px 16px;border-radius:0 0 24px 24px}
-header h1{margin:0;font-size:28px}header p{margin:6px 0 0;font-size:14px}.container{max-width:700px;margin:auto;padding:16px}
+header h1{margin:0;font-size:28px}header p{margin:6px 0 0;font-size:14px}.container{max-width:700px;margin:auto;padding:16px}.set-tabs{display:flex;gap:8px;padding:12px 16px 4px;max-width:700px;margin:auto}.set-tab{flex:1;border:0;border-radius:12px;padding:11px 6px;background:#fff;color:#6b5965;font-size:14px;font-weight:700;box-shadow:0 2px 8px rgba(0,0,0,.08);cursor:pointer}.set-tab.active{background:#ff9dcc;color:#fff}.set-tab.preparing{opacity:.75}
 .progress-box{background:#fff;border-radius:18px;padding:18px;margin-bottom:16px;box-shadow:0 3px 12px rgba(0,0,0,.08);text-align:center}
 .progress-text{font-size:28px;font-weight:bold}.progress-bar{height:14px;background:#eee;border-radius:20px;overflow:hidden;margin-top:10px}.progress-fill{height:100%;width:0;background:linear-gradient(90deg,#ff8fc7,#b99aff);transition:width .3s}
 .controls{display:flex;gap:8px;margin-bottom:12px}.controls button{flex:1;border:0;border-radius:12px;padding:11px 4px;background:#fff;color:#6b5965;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,.08)}.controls button.active{background:#ff9dcc;color:#fff}
@@ -33,7 +33,8 @@ header h1{margin:0;font-size:28px}header p{margin:6px 0 0;font-size:14px}.contai
 .list-preview{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:30;overflow:auto;padding:20px 12px}.preview-sheet{max-width:700px;margin:20px auto;background:#fff;border-radius:18px;padding:14px}.preview-head{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:18px}.preview-head button{border:0;background:#eee;border-radius:10px;padding:8px 12px}.preview-note{font-size:13px;color:#777;margin:10px 0}.preview-body{text-align:center}.loading{padding:40px;color:#777}.generated-list-image{width:100%;height:auto;display:block;border-radius:10px;-webkit-touch-callout:default;user-select:none}</style>
 </head>
 <body>
-<header><h1>♡ コンプチェッカー ♡</h1><p>アイカツ！アンコール 第1弾</p></header>
+<header><h1>♡ コンプチェッカー ♡</h1><p id="setSubtitle">アイカツ！アンコール 第1弾</p></header>
+<div class="set-tabs" id="setTabs"><button class="set-tab active" onclick="switchSet('e1')">第1弾</button><button class="set-tab" onclick="switchSet('e2')">第2弾</button><button class="set-tab" onclick="switchSet('e3')">第3弾</button></div>
 <div class="container">
 <div class="progress-box"><div>コンプリート率</div><div class="progress-text" id="percent">0%</div><div class="progress-bar"><div class="progress-fill" id="progress"></div></div><div id="count">0 / 85 枚</div></div>
 <input class="search" id="search" type="text" placeholder="🔍 カード番号を検索">
@@ -48,7 +49,7 @@ header h1{margin:0;font-size:28px}header p{margin:6px 0 0;font-size:14px}.contai
 <div class="sheet-actions"><button class="cancel" onclick="closeModal()">キャンセル</button><button class="save" onclick="saveCard()">保存</button></div>
 </div></div>
 <script>
-const cards=[
+const cardsE1=[
   {id:"E1-01",image:""},
   {id:"E1-02",image:""},
   {id:"E1-03",image:""},
@@ -135,19 +136,45 @@ const cards=[
   {id:"E1-84",image:"E1-84.webp"},
   {id:"E1-85",image:"E1-85.webp"}
 ];
-let data=JSON.parse(localStorage.getItem("aikatsu-encore-e1-data-v2")||"{}");
-const oldOwned=JSON.parse(localStorage.getItem("aikatsu-encore-e1-owned")||"[]");
-if(Object.keys(data).length===0 && Array.isArray(oldOwned) && oldOwned.length){
- oldOwned.forEach(id=>data[id]={type:"have",qty:1});
- localStorage.setItem("aikatsu-encore-e1-data-v2",JSON.stringify(data));
+const sets={
+  e1:{name:"第1弾",subtitle:"アイカツ！アンコール 第1弾",cards:cardsE1,storageKey:"aikatsu-encore-e1-data-v2",oldKey:"aikatsu-encore-e1-owned"},
+  e2:{name:"第2弾",subtitle:"アイカツ！アンコール 第2弾",cards:[],storageKey:"aikatsu-encore-e2-data-v1",oldKey:null},
+  e3:{name:"第3弾",subtitle:"アイカツ！アンコール 第3弾",cards:[],storageKey:"aikatsu-encore-e3-data-v1",oldKey:null}
+};
+let currentSetKey="e1";
+let currentSet=sets[currentSetKey];
+let cards=currentSet.cards;
+let data={};
+function loadSetData(){
+ data=JSON.parse(localStorage.getItem(currentSet.storageKey)||"{}");
+ if(Object.keys(data).length===0 && currentSet.oldKey){
+   const oldOwned=JSON.parse(localStorage.getItem(currentSet.oldKey)||"[]");
+   if(Array.isArray(oldOwned) && oldOwned.length){
+     oldOwned.forEach(id=>data[id]={type:"have",qty:1});
+     localStorage.setItem(currentSet.storageKey,JSON.stringify(data));
+   }
+ }
 }
+function switchSet(key){
+ if(!sets[key])return;
+ currentSetKey=key;currentSet=sets[key];cards=currentSet.cards;filter="all";
+ document.querySelectorAll(".set-tab").forEach(b=>b.classList.remove("active"));
+ const buttons=document.querySelectorAll(".set-tab");
+ const idx=["e1","e2","e3"].indexOf(key);
+ if(idx>=0)buttons[idx].classList.add("active");
+ document.getElementById("setSubtitle").textContent=currentSet.subtitle;
+ document.title="♡ コンプチェッカー ♡ "+currentSet.name;
+ document.querySelectorAll(".controls button").forEach((b,i)=>b.classList.toggle("active",i===0));
+ loadSetData();render();
+}
+loadSetData();
 let filter="all",editingId="",editingType="none";
-function saveData(){localStorage.setItem("aikatsu-encore-e1-data-v2",JSON.stringify(data));}
+function saveData(){localStorage.setItem(currentSet.storageKey,JSON.stringify(data));}
 function state(c){return data[c.id]||{type:"none",qty:0}}
 function render(){
  const s=document.getElementById("search").value.toLowerCase(),area=document.getElementById("cards");
  const filtered=cards.filter(c=>{const d=state(c);return c.id.toLowerCase().includes(s)&&(filter==="all"||(filter==="want"&&d.type==="want")||(filter==="have"&&d.type==="have"&&d.qty>0));});
- area.innerHTML=filtered.length?filtered.map(c=>{
+ area.innerHTML=cards.length&&filtered.length?filtered.map(c=>{
  const d=state(c);
  const label=d.type==="want"?"♡ 欲しいもの":d.type==="have"&&d.qty>0?`📦 所持数 ${d.qty}枚`:"未設定";
  const cls=d.type==="want"?"want":d.type==="have"&&d.qty>0?"have":"none";
@@ -161,7 +188,7 @@ function render(){
 }).join(""):'<div class="empty">該当するカードがありません</div>';
  updateProgress();
 }
-function updateProgress(){const have=cards.filter(c=>state(c).type==="have"&&state(c).qty>0).length,p=Math.round(have/cards.length*100);document.getElementById("percent").textContent=p+"%";document.getElementById("progress").style.width=p+"%";document.getElementById("count").textContent=have+" / "+cards.length+" 枚";}
+function updateProgress(){const have=cards.filter(c=>state(c).type==="have"&&state(c).qty>0).length;const total=cards.length;if(!total){document.getElementById("percent").textContent="準備中";document.getElementById("progress").style.width="0%";document.getElementById("count").textContent="カード登録後に使えます";return;}const p=Math.round(have/total*100);document.getElementById("percent").textContent=p+"%";document.getElementById("progress").style.width=p+"%";document.getElementById("count").textContent=have+" / "+total+" 枚";}
 function setFilter(t,b){filter=t;document.querySelectorAll(".controls button").forEach(x=>x.classList.remove("active"));b.classList.add("active");render();}
 function openModal(id){editingId=id;const d=state(cards.find(c=>c.id===id));editingType=d.type||"none";document.getElementById("modalTitle").textContent=id;document.getElementById("qty").value=d.qty||1;updateChoice();document.getElementById("modal").classList.add("open");}
 function chooseType(t){editingType=t;updateChoice();}
@@ -174,7 +201,7 @@ function updateChoice(){
 function saveCard(){const qty=Math.max(0,Math.min(99,Number(document.getElementById("qty").value)||0));data[editingId]=editingType==="have"?{type:"have",qty}:{type:editingType,qty:0};saveData();closeModal();render();}
 function closeModal(){document.getElementById("modal").classList.remove("open");editingId="";editingType="none";}
 document.getElementById("modal").addEventListener("click",e=>{if(e.target.id==="modal")closeModal();});
-function resetData(){if(confirm("欲しいもの・所持数をすべてリセットしますか？")){data={};saveData();render();}}
+function resetData(){if(confirm(currentSet.name+"の欲しいもの・所持数をすべてリセットしますか？")){data={};saveData();render();}}
 function makeList(type){
  const selected=cards.filter(c=>state(c).type===type&&((type==="have"&&state(c).qty>0)||type==="want"));
  if(!selected.length){alert(type==="want"?"欲しいものが選択されていません":"所持カードが登録されていません");return;}
