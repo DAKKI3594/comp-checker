@@ -6,7 +6,7 @@
 <style>
 *{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;background:#fff7fc;color:#4a3b45}
 header{background:linear-gradient(135deg,#ff9dcc,#c9a7ff);color:#fff;text-align:center;padding:24px 16px;border-radius:0 0 24px 24px}
-header h1{margin:0;font-size:28px}header p{margin:6px 0 0;font-size:14px}.container{max-width:700px;margin:auto;padding:16px}.set-tabs{display:flex;gap:8px;padding:12px 16px 4px;max-width:700px;margin:auto}.set-tab{flex:1;border:0;border-radius:12px;padding:11px 6px;background:#fff;color:#6b5965;font-size:14px;font-weight:700;box-shadow:0 2px 8px rgba(0,0,0,.08);cursor:pointer}.set-tab.active{background:#ff9dcc;color:#fff}.set-tab.preparing{opacity:.75}
+header h1{margin:0;font-size:28px}header p{margin:6px 0 0;font-size:14px}.container{max-width:700px;margin:auto;padding:16px}.set-selector-wrap{max-width:700px;margin:14px auto 4px;padding:0 16px}.set-selector-wrap label{display:block;font-size:12px;font-weight:700;color:#8a7180;margin:0 0 6px 4px}.set-selector{width:100%;appearance:none;-webkit-appearance:none;border:2px solid #f0dce8;border-radius:16px;background:#fff;color:#4a3b45;font-size:18px;font-weight:700;padding:14px 46px 14px 16px;box-shadow:0 3px 12px rgba(0,0,0,.08);background-image:linear-gradient(45deg,transparent 50%,#8d7181 50%),linear-gradient(135deg,#8d7181 50%,transparent 50%);background-position:calc(100% - 22px) 20px,calc(100% - 15px) 20px;background-size:7px 7px,7px 7px;background-repeat:no-repeat}.set-selector:focus{outline:0;border-color:#ff9dcc;box-shadow:0 0 0 3px rgba(255,157,204,.18)}
 .progress-box{background:#fff;border-radius:18px;padding:18px;margin-bottom:16px;box-shadow:0 3px 12px rgba(0,0,0,.08);text-align:center}
 .progress-text{font-size:28px;font-weight:bold}.progress-bar{height:14px;background:#eee;border-radius:20px;overflow:hidden;margin-top:10px}.progress-fill{height:100%;width:0;background:linear-gradient(90deg,#ff8fc7,#b99aff);transition:width .3s}
 .controls{display:flex;gap:8px;margin-bottom:12px}.controls button{flex:1;border:0;border-radius:12px;padding:11px 4px;background:#fff;color:#6b5965;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,.08)}.controls button.active{background:#ff9dcc;color:#fff}
@@ -33,8 +33,8 @@ header h1{margin:0;font-size:28px}header p{margin:6px 0 0;font-size:14px}.contai
 .list-preview{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:30;overflow:auto;padding:20px 12px}.preview-sheet{max-width:700px;margin:20px auto;background:#fff;border-radius:18px;padding:14px}.preview-head{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:18px}.preview-head button{border:0;background:#eee;border-radius:10px;padding:8px 12px}.preview-note{font-size:13px;color:#777;margin:10px 0}.preview-body{text-align:center}.loading{padding:40px;color:#777}.generated-list-image{width:100%;height:auto;display:block;border-radius:10px;-webkit-touch-callout:default;user-select:none}</style>
 </head>
 <body>
-<header><h1>♡ コンプチェッカー ♡</h1><p id="setSubtitle">アイカツ！アンコール 第1弾</p></header>
-<div class="set-tabs" id="setTabs"><button class="set-tab active" onclick="switchSet('all')">すべて</button><button class="set-tab" onclick="switchSet('e1')">1弾</button><button class="set-tab preparing" onclick="switchSet('e2')">2弾</button><button class="set-tab preparing" onclick="switchSet('e3')">3弾</button><button class="set-tab preparing" onclick="switchSet('e4')">4弾</button><button class="set-tab preparing" onclick="switchSet('e5')">5弾</button><button class="set-tab preparing" onclick="switchSet('e6')">6弾</button><button class="set-tab preparing" onclick="switchSet('promo')">プロモーション</button></div>
+<header><h1>♡ コンプチェッカー ♡</h1><p id="setSubtitle">アイカツ！アンコール 全カード</p></header>
+<div class="set-selector-wrap"><label for="setSelector">弾を選択</label><select id="setSelector" class="set-selector" onchange="switchSet(this.value)"><option value="all">すべて</option><option value="e1">1弾</option><option value="e2">2弾</option><option value="e3">3弾</option><option value="e4">4弾</option><option value="e5">5弾</option><option value="e6">6弾</option><option value="promo">プロモーション</option></select></div>
 <div class="container">
 <div class="progress-box"><div>コンプリート率</div><div class="progress-text" id="percent">0%</div><div class="progress-bar"><div class="progress-fill" id="progress"></div></div><div id="count">0 / 85 枚</div></div>
 <input class="search" id="search" type="text" placeholder="🔍 カード番号を検索">
@@ -137,18 +137,19 @@ const cardsE1=[
   {id:"E1-85",image:"E1-85.webp"}
 ];
 const sets={
-  e1:{name:"第1弾",subtitle:"アイカツ！アンコール 第1弾",cards:cardsE1,storageKey:"aikatsu-encore-e1-data-v2",oldKey:"aikatsu-encore-e1-owned"},
-  e2:{name:"第2弾",subtitle:"アイカツ！アンコール 第2弾",cards:[],storageKey:"aikatsu-encore-e2-data-v1",oldKey:null},
-  e3:{name:"第3弾",subtitle:"アイカツ！アンコール 第3弾",cards:[],storageKey:"aikatsu-encore-e3-data-v1",oldKey:null},
-  e4:{name:"第4弾",subtitle:"アイカツ！アンコール 第4弾",cards:[],storageKey:"aikatsu-encore-e4-data-v1",oldKey:null},
-  e5:{name:"第5弾",subtitle:"アイカツ！アンコール 第5弾",cards:[],storageKey:"aikatsu-encore-e5-data-v1",oldKey:null},
-  e6:{name:"第6弾",subtitle:"アイカツ！アンコール 第6弾",cards:[],storageKey:"aikatsu-encore-e6-data-v1",oldKey:null},
+  all:{name:"すべて",subtitle:"アイカツ！アンコール 全カード",cards:[],storageKey:"",oldKey:null},
+  e1:{name:"1弾",subtitle:"アイカツ！アンコール 第1弾",cards:cardsE1,storageKey:"aikatsu-encore-e1-data-v2",oldKey:"aikatsu-encore-e1-owned"},
+  e2:{name:"2弾",subtitle:"アイカツ！アンコール 第2弾",cards:[],storageKey:"aikatsu-encore-e2-data-v1",oldKey:null},
+  e3:{name:"3弾",subtitle:"アイカツ！アンコール 第3弾",cards:[],storageKey:"aikatsu-encore-e3-data-v1",oldKey:null},
+  e4:{name:"4弾",subtitle:"アイカツ！アンコール 第4弾",cards:[],storageKey:"aikatsu-encore-e4-data-v1",oldKey:null},
+  e5:{name:"5弾",subtitle:"アイカツ！アンコール 第5弾",cards:[],storageKey:"aikatsu-encore-e5-data-v1",oldKey:null},
+  e6:{name:"6弾",subtitle:"アイカツ！アンコール 第6弾",cards:[],storageKey:"aikatsu-encore-e6-data-v1",oldKey:null},
   promo:{name:"プロモーション",subtitle:"アイカツ！アンコール プロモーション",cards:[],storageKey:"aikatsu-encore-promo-data-v1",oldKey:null}
 };
 const allSet={name:"すべて",subtitle:"アイカツ！アンコール 全カード",cards:[],storageKey:"aikatsu-encore-all-view",oldKey:null};
-let currentSetKey="e1";
+let currentSetKey="all";
 let currentSet=sets[currentSetKey];
-let cards=currentSet.cards;
+let cards=[...cardsE1];
 let data={};
 function loadSetData(){
   if(currentSetKey==="all"){
@@ -166,25 +167,27 @@ function loadSetData(){
   }
 }
 function switchSet(key){
-  if(key==="all"){
-    currentSetKey="all";currentSet=allSet;cards=[...sets.e1.cards,...sets.e2.cards,...sets.e3.cards,...sets.e4.cards,...sets.e5.cards,...sets.e6.cards,...sets.promo.cards];
-  }else if(sets[key]){
-    currentSetKey=key;currentSet=sets[key];cards=currentSet.cards;
-  }else{return;}
+  if(!sets[key])return;
+  currentSetKey=key;
+  currentSet=sets[key];
+  cards=key==="all"?[...cardsE1,...sets.e2.cards,...sets.e3.cards,...sets.e4.cards,...sets.e5.cards,...sets.e6.cards,...sets.promo.cards]:currentSet.cards;
   filter="all";
-  document.querySelectorAll(".set-tab").forEach(b=>b.classList.remove("active"));
-  const buttons=[...document.querySelectorAll(".set-tab")];
-  const idx=["all","e1","e2","e3","e4","e5","e6","promo"].indexOf(key);
-  if(idx>=0)buttons[idx].classList.add("active");
+  document.getElementById("setSelector").value=key;
   document.getElementById("setSubtitle").textContent=currentSet.subtitle;
   document.title="♡ コンプチェッカー ♡ "+currentSet.name;
   document.querySelectorAll(".controls button").forEach((b,i)=>b.classList.toggle("active",i===0));
-  loadSetData();render();
+  loadSetData();
+  render();
 }
 loadSetData();
 let filter="all",editingId="",editingType="none";
 function saveData(){if(currentSetKey!=="all")localStorage.setItem(currentSet.storageKey,JSON.stringify(data));}
-function state(c){return data[c.id]||{type:"none",qty:0}}
+function state(c){
+  if(currentSetKey!=="all") return data[c.id]||{type:"none",qty:0};
+  const key=c.id.startsWith("E1-")?"aikatsu-encore-e1-data-v2":c.id.startsWith("E2-")?"aikatsu-encore-e2-data-v1":c.id.startsWith("E3-")?"aikatsu-encore-e3-data-v1":c.id.startsWith("E4-")?"aikatsu-encore-e4-data-v1":c.id.startsWith("E5-")?"aikatsu-encore-e5-data-v1":c.id.startsWith("E6-")?"aikatsu-encore-e6-data-v1":"aikatsu-encore-promo-data-v1";
+  const d=JSON.parse(localStorage.getItem(key)||"{}");
+  return d[c.id]||{type:"none",qty:0};
+}
 function render(){
  const s=document.getElementById("search").value.toLowerCase(),area=document.getElementById("cards");
  const filtered=cards.filter(c=>{const d=state(c);return c.id.toLowerCase().includes(s)&&(filter==="all"||(filter==="want"&&d.type==="want")||(filter==="have"&&d.type==="have"&&d.qty>0));});
@@ -212,70 +215,19 @@ function updateChoice(){
  q.style.display=editingType==="have"?"block":"none";
  q.disabled=editingType!=="have";
 }
-function saveCard(){const qty=Math.max(0,Math.min(99,Number(document.getElementById("qty").value)||0));data[editingId]=editingType==="have"?{type:"have",qty}:{type:editingType,qty:0};saveData();closeModal();render();}
-function closeModal(){document.getElementById("modal").classList.remove("open");editingId="";editingType="none";}
-document.getElementById("modal").addEventListener("click",e=>{if(e.target.id==="modal")closeModal();});
-function resetData(){if(confirm(currentSet.name+"の欲しいもの・所持数をすべてリセットしますか？")){if(currentSetKey==="all"){["e1","e2","e3","e4","e5","e6","promo"].forEach(k=>localStorage.removeItem(sets[k].storageKey));}else{localStorage.removeItem(currentSet.storageKey);}data={};loadSetData();render();}}
-function makeList(type){
- const selected=cards.filter(c=>state(c).type===type&&((type==="have"&&state(c).qty>0)||type==="want"));
- if(!selected.length){alert(type==="want"?"欲しいものが選択されていません":"所持カードが登録されていません");return;}
- const old=document.getElementById("listPreview"); if(old) old.remove();
- const wrap=document.createElement("div"); wrap.id="listPreview"; wrap.className="list-preview";
- wrap.innerHTML='<div class="preview-sheet"><div class="preview-head"><strong>'+(type==="want"?"♡ 欲しいものリスト":"📦 所持カードリスト")+'</strong><button type="button" onclick="document.getElementById(\'listPreview\').remove()">閉じる</button></div><div class="preview-note">横8枚 × 縦5枚（1画像40枚）／数字はカードの下に表示されます。画像を長押しして「写真に保存」できます</div><div id="previewBody" class="preview-body"><div class="loading">画像を作成中…</div></div></div>';
- document.body.appendChild(wrap);
- const body=document.getElementById("previewBody");
- const cols=8,rows=5,perPage=cols*rows,cellW=300,cellH=560,marginX=18,top=90;
- const pages=[];
- for(let page=0;page<Math.ceil(selected.length/perPage);page++){
-   const pageItems=selected.slice(page*perPage,(page+1)*perPage);
-   const canvas=document.createElement("canvas"),ctx=canvas.getContext("2d");
-   canvas.width=cols*cellW+marginX*2;canvas.height=rows*cellH+top+30;
-   ctx.fillStyle="#ffffff";ctx.fillRect(0,0,canvas.width,canvas.height);
-   ctx.fillStyle="#24305f";ctx.font="bold 30px sans-serif";ctx.textAlign="center";
-   ctx.fillText(type==="want"?"♡ 欲しいものリスト":"📦 所持カードリスト",canvas.width/2,42);
-   ctx.fillStyle="#777";ctx.font="16px sans-serif";
-   ctx.fillText((page+1)+" / "+Math.ceil(selected.length/perPage),canvas.width/2,68);
-   pages.push({canvas,ctx,pageItems});
- }
- const images=[];
- let remaining=selected.length;
- const addResult=()=>{
-   remaining--;
-   if(remaining>0)return;
-   body.innerHTML="";
-   pages.forEach((p,pi)=>{
-     const block=document.createElement("div");block.className="generated-page";
-     const img=document.createElement("img");img.className="generated-list-image";img.alt="作成したリスト画像 "+(pi+1);
-     img.src=p.canvas.toDataURL("image/png");
-     block.appendChild(img);body.appendChild(block);
-   });
- };
- pages.forEach((p)=>{
-   p.pageItems.forEach((c,i)=>{
-     const d=state(c),x=marginX+(i%cols)*cellW,y=top+Math.floor(i/cols)*cellH;
-     ctx=p.ctx;
-     ctx.fillStyle="#fff";ctx.fillRect(x+8,y+8,cellW-16,cellH-16);
-     ctx.strokeStyle="#27324d";ctx.lineWidth=3;ctx.strokeRect(x+8,y+8,cellW-16,cellH-16);
-     const drawPlaceholder=()=>{
-       ctx.fillStyle="#f3d8ff";ctx.fillRect(x+40,y+28,cellW-80,330);
-       ctx.fillStyle="#987c91";ctx.font="16px sans-serif";ctx.textAlign="center";ctx.fillText("画像準備中",x+cellW/2,y+200);
-       drawText();
-     };
-     const drawText=()=>{
-       ctx.textAlign="center";
-       ctx.fillStyle="#222";ctx.font="bold 16px sans-serif";ctx.fillText(c.id,x+cellW/2,y+385);
-       ctx.fillStyle=type==="have"?"#1638c9":"#1638c9";
-       ctx.font='bold 48px "Comic Sans MS","Hiragino Maru Gothic ProN",sans-serif';
-       ctx.fillText(type==="have"?String(d.qty):"♡",x+cellW/2,y+445);
-     };
-     if(c.image){
-       const img=new Image();
-       img.onload=()=>{ctx.drawImage(img,x+40,y+28,cellW-80,330);drawText();addResult();};
-       img.onerror=()=>{drawPlaceholder();addResult();};
-       img.src=c.image;
-     }else{drawPlaceholder();addResult();}
-   });
- });
+function saveCard(){
+  const qty=Math.max(0,Math.min(99,Number(document.getElementById("qty").value)||0));
+  if(currentSetKey==="all"){
+    const prefix=editingId.split("-")[0];
+    const key=prefix==="E1"?"aikatsu-encore-e1-data-v2":prefix==="E2"?"aikatsu-encore-e2-data-v1":prefix==="E3"?"aikatsu-encore-e3-data-v1":prefix==="E4"?"aikatsu-encore-e4-data-v1":prefix==="E5"?"aikatsu-encore-e5-data-v1":prefix==="E6"?"aikatsu-encore-e6-data-v1":"aikatsu-encore-promo-data-v1";
+    const d=JSON.parse(localStorage.getItem(key)||"{}");
+    d[editingId]=editingType==="have"?{type:"have",qty}:{type:editingType,qty:0};
+    localStorage.setItem(key,JSON.stringify(d));
+  }else{
+    data[editingId]=editingType==="have"?{type:"have",qty}:{type:editingType,qty:0};
+    saveData();
+  }
+  closeModal();render();
 }
 document.getElementById("search").addEventListener("input",render);render();
 </script>
