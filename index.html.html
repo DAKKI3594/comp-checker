@@ -18,33 +18,98 @@ header p{margin:7px 0 0;font-size:14px;font-weight:600;letter-spacing:1px}
 .empty{text-align:center;padding:45px 10px;color:#9e8999}.reset{width:100%;margin-top:22px;padding:12px;border:2px solid #eadde8;border-radius:16px;background:rgba(255,255,255,.7);color:#9a8795;font-weight:600}
 @media(max-width:380px){header h1{font-size:25px}.cards{gap:9px}.card{padding:7px}.card-name{font-size:14px}}
 
-.trade-panel{margin:14px 0;padding:14px;border-radius:20px;background:rgba(255,255,255,.8);box-shadow:0 4px 14px rgba(120,80,150,.10)}
-.trade-panel h3{margin:0 0 8px;font-size:15px}.trade-panel p{margin:0 0 10px;font-size:12px;color:var(--muted)}
-.trade-tools{display:flex;gap:8px;flex-wrap:wrap}.trade-tools button{border:1px solid #ead7ee;border-radius:18px;padding:9px 12px;background:#fff;color:var(--ink);font-weight:700}
-.trade-btns{display:flex;gap:5px;margin-top:7px}.trade-btn{flex:1;border:1px solid #ead7ee;border-radius:12px;padding:6px 3px;background:#fff;font-size:11px;font-weight:700}.trade-btn.want.active{background:#ffd9ea;border-color:#f48fca}.trade-btn.give.active{background:#dff5ff;border-color:#8dcde9}
-</style></head><body><header><div class="logo-badge">♡</div><h1>♡ コンプチェッカー ♡</h1><p>アイカツ！アンコール 第1弾</p></header><div class="container"><div class="progress-box"><div class="progress-title">✦ MY COLLECTION ✦</div><div class="progress-text" id="percent">0%</div><div class="progress-bar"><div class="progress-fill" id="progress"></div></div><div id="count">0 / 85 枚</div></div><input class="search" id="search" type="text" placeholder="🔍 カード番号を検索"><div class="controls"><button class="active" onclick="setFilter('all',this)">すべて</button><button onclick="setFilter('owned',this)">所持</button><button onclick="setFilter('missing',this)">未所持</button></div><div class="trade-panel">
-<h3>🔄 交換リスト</h3>
-<p>カードごとに「求め」「譲り」を選べます。選んだカードだけを画像にできます。</p>
-<div class="trade-tools">
-<button onclick="showTradeList('want')">🔍 求め一覧</button>
-<button onclick="showTradeList('give')">🎁 譲り一覧</button>
-<button onclick="saveTradeImage('want')">🖼️ 求めを画像保存</button>
-<button onclick="saveTradeImage('give')">🖼️ 譲りを画像保存</button>
-</div></div>
-<div class="cards" id="cards"></div><button class="reset" onclick="resetData()">所持データをリセット</button></div><script>const cards=[{"id":"E1-01","name":"E1-01","image":"","dummy":true},{"id":"E1-02","name":"E1-02","image":"","dummy":true},{"id":"E1-03","name":"E1-03","image":"","dummy":true},{"id":"E1-04","name":"E1-04","image":"","dummy":true},{"id":"E1-05","name":"E1-05","image":"cards/E1-05.webp","dummy":false},{"id":"E1-06","name":"E1-06","image":"cards/E1-06.webp","dummy":false},{"id":"E1-07","name":"E1-07","image":"cards/E1-07.webp","dummy":false},{"id":"E1-08","name":"E1-08","image":"cards/E1-08.webp","dummy":false},{"id":"E1-09","name":"E1-09","image":"cards/E1-09.webp","dummy":false},{"id":"E1-10","name":"E1-10","image":"cards/E1-10.webp","dummy":false},{"id":"E1-11","name":"E1-11","image":"cards/E1-11.webp","dummy":false},{"id":"E1-12","name":"E1-12","image":"cards/E1-12.webp","dummy":false},{"id":"E1-13","name":"E1-13","image":"cards/E1-13.webp","dummy":false},{"id":"E1-14","name":"E1-14","image":"cards/E1-14.webp","dummy":false},{"id":"E1-15","name":"E1-15","image":"cards/E1-15.webp","dummy":false},{"id":"E1-16","name":"E1-16","image":"cards/E1-16.webp","dummy":false},{"id":"E1-17","name":"E1-17","image":"cards/E1-17.webp","dummy":false},{"id":"E1-18","name":"E1-18","image":"cards/E1-18.webp","dummy":false},{"id":"E1-19","name":"E1-19","image":"cards/E1-19.webp","dummy":false},{"id":"E1-20","name":"E1-20","image":"cards/E1-20.webp","dummy":false},{"id":"E1-21","name":"E1-21","image":"cards/E1-21.webp","dummy":false},{"id":"E1-22","name":"E1-22","image":"cards/E1-22.webp","dummy":false},{"id":"E1-23","name":"E1-23","image":"cards/E1-23.webp","dummy":false},{"id":"E1-24","name":"E1-24","image":"cards/E1-24.webp","dummy":false},{"id":"E1-25","name":"E1-25","image":"cards/E1-25.webp","dummy":false},{"id":"E1-26","name":"E1-26","image":"cards/E1-26.webp","dummy":false},{"id":"E1-27","name":"E1-27","image":"cards/E1-27.webp","dummy":false},{"id":"E1-28","name":"E1-28","image":"cards/E1-28.webp","dummy":false},{"id":"E1-29","name":"E1-29","image":"cards/E1-29.webp","dummy":false},{"id":"E1-30","name":"E1-30","image":"","dummy":true},{"id":"E1-31","name":"E1-31","image":"","dummy":true},{"id":"E1-32","name":"E1-32","image":"","dummy":true},{"id":"E1-33","name":"E1-33","image":"","dummy":true},{"id":"E1-34","name":"E1-34","image":"","dummy":true},{"id":"E1-35","name":"E1-35","image":"","dummy":true},{"id":"E1-36","name":"E1-36","image":"","dummy":true},{"id":"E1-37","name":"E1-37","image":"cards/E1-37.webp","dummy":false},{"id":"E1-38","name":"E1-38","image":"cards/E1-38.webp","dummy":false},{"id":"E1-39","name":"E1-39","image":"cards/E1-39.webp","dummy":false},{"id":"E1-40","name":"E1-40","image":"cards/E1-40.webp","dummy":false},{"id":"E1-41","name":"E1-41","image":"cards/E1-41.webp","dummy":false},{"id":"E1-42","name":"E1-42","image":"cards/E1-42.webp","dummy":false},{"id":"E1-43","name":"E1-43","image":"cards/E1-43.webp","dummy":false},{"id":"E1-44","name":"E1-44","image":"cards/E1-44.webp","dummy":false},{"id":"E1-45","name":"E1-45","image":"cards/E1-45.webp","dummy":false},{"id":"E1-46","name":"E1-46","image":"cards/E1-46.webp","dummy":false},{"id":"E1-47","name":"E1-47","image":"cards/E1-47.webp","dummy":false},{"id":"E1-48","name":"E1-48","image":"cards/E1-48.webp","dummy":false},{"id":"E1-49","name":"E1-49","image":"cards/E1-49.webp","dummy":false},{"id":"E1-50","name":"E1-50","image":"","dummy":true},{"id":"E1-51","name":"E1-51","image":"cards/E1-51.webp","dummy":false},{"id":"E1-52","name":"E1-52","image":"cards/E1-52.webp","dummy":false},{"id":"E1-53","name":"E1-53","image":"cards/E1-53.webp","dummy":false},{"id":"E1-54","name":"E1-54","image":"cards/E1-54.webp","dummy":false},{"id":"E1-55","name":"E1-55","image":"cards/E1-55.webp","dummy":false},{"id":"E1-56","name":"E1-56","image":"cards/E1-56.webp","dummy":false},{"id":"E1-57","name":"E1-57","image":"cards/E1-57.webp","dummy":false},{"id":"E1-58","name":"E1-58","image":"cards/E1-58.webp","dummy":false},{"id":"E1-59","name":"E1-59","image":"cards/E1-59.webp","dummy":false},{"id":"E1-60","name":"E1-60","image":"cards/E1-60.webp","dummy":false},{"id":"E1-61","name":"E1-61","image":"cards/E1-61.webp","dummy":false},{"id":"E1-62","name":"E1-62","image":"cards/E1-62.webp","dummy":false},{"id":"E1-63","name":"E1-63","image":"cards/E1-63.webp","dummy":false},{"id":"E1-64","name":"E1-64","image":"cards/E1-64.webp","dummy":false},{"id":"E1-65","name":"E1-65","image":"cards/E1-65.webp","dummy":false},{"id":"E1-66","name":"E1-66","image":"cards/E1-66.webp","dummy":false},{"id":"E1-67","name":"E1-67","image":"cards/E1-67.webp","dummy":false},{"id":"E1-68","name":"E1-68","image":"cards/E1-68.webp","dummy":false},{"id":"E1-69","name":"E1-69","image":"cards/E1-69.webp","dummy":false},{"id":"E1-70","name":"E1-70","image":"cards/E1-70.webp","dummy":false},{"id":"E1-71","name":"E1-71","image":"","dummy":true},{"id":"E1-72","name":"E1-72","image":"","dummy":true},{"id":"E1-73","name":"E1-73","image":"","dummy":true},{"id":"E1-74","name":"E1-74","image":"","dummy":true},{"id":"E1-75","name":"E1-75","image":"","dummy":true},{"id":"E1-76","name":"E1-76","image":"","dummy":true},{"id":"E1-77","name":"E1-77","image":"","dummy":true},{"id":"E1-78","name":"E1-78","image":"","dummy":true},{"id":"E1-79","name":"E1-79","image":"","dummy":true},{"id":"E1-80","name":"E1-80","image":"","dummy":true},{"id":"E1-81","name":"E1-81","image":"","dummy":true},{"id":"E1-82","name":"E1-82","image":"","dummy":true},{"id":"E1-83","name":"E1-83","image":"cards/E1-83.webp","dummy":false},{"id":"E1-84","name":"E1-84","image":"cards/E1-84.webp","dummy":false},{"id":"E1-85","name":"E1-85","image":"cards/E1-85.webp","dummy":false}];let owned=JSON.parse(localStorage.getItem("aikatsu-encore-e1-owned")||"[]");let tradeData=JSON.parse(localStorage.getItem("aikatsu-encore-e1-trade")||"{}");
-function setTrade(id,type){tradeData[id]=tradeData[id]===type?"":type;localStorage.setItem("aikatsu-encore-e1-trade",JSON.stringify(tradeData));render()}
-function showTradeList(type){const list=cards.filter(c=>c.image&&tradeData[c.id]===type);if(!list.length){alert(type==="want"?"求めカードはまだありません。":"譲りカードはまだありません。");return}alert((type==="want"?"🔍 求めリスト\n\n":"🎁 譲りリスト\n\n")+list.map(c=>c.id).join("\n"))}
-function saveTradeImage(type){
- const list=cards.filter(c=>c.image&&tradeData[c.id]===type);
- if(!list.length){alert(type==="want"?"求めカードを選択してください。":"譲りカードを選択してください。");return}
- const canvas=document.createElement("canvas"),cols=3,w=220,h=315,p=24,head=92,rows=Math.ceil(list.length/cols);
- canvas.width=p*2+cols*w;canvas.height=head+p+rows*h;const ctx=canvas.getContext("2d");
- ctx.fillStyle="#fff8fd";ctx.fillRect(0,0,canvas.width,canvas.height);ctx.fillStyle="#6f4b73";ctx.textAlign="center";
- ctx.font="bold 24px sans-serif";ctx.fillText("アイカツ！アンコール 第1弾",canvas.width/2,35);
- ctx.font="bold 22px sans-serif";ctx.fillText(type==="want"?"🔍 求めリスト":"🎁 譲りリスト",canvas.width/2,68);
- let done=0;
- list.forEach((c,i)=>{const img=new Image();img.onload=()=>{const x=p+(i%cols)*w,y=head+Math.floor(i/cols)*h;
- const ratio=Math.min((w-14)/img.width,(h-42)/img.height),iw=img.width*ratio,ih=img.height*ratio;
- ctx.drawImage(img,x+(w-iw)/2,y,iw,ih);ctx.font="bold 17px sans-serif";ctx.fillStyle="#6f4b73";ctx.fillText(c.id,x+w/2,y+h-13);
- if(++done===list.length){const a=document.createElement("a");a.download=(type==="want"?"aikatsu-want-list":"aikatsu-give-list")+".png";a.href=canvas.toDataURL("image/png");a.click()}};img.src=c.image})
-}let filter="all";function render(){const s=document.getElementById("search").value.toLowerCase();const area=document.getElementById("cards");const filtered=cards.filter(c=>(c.id.toLowerCase().includes(s)||c.name.toLowerCase().includes(s))&&(filter==="all"||(filter==="owned"&&owned.includes(c.id))||(filter==="missing"&&!owned.includes(c.id))));if(!filtered.length){area.innerHTML='<div class="empty">該当するカードがありません</div>'}else{area.innerHTML=filtered.map(c=>{const o=owned.includes(c.id);return `<div class="card ${o?'owned':''}" onclick="toggleCard('${c.id}')"><div class="check">${o?'✓':''}</div><div class="card-image">${c.image?`<img src="${c.image}" alt="${c.id}">`:'<div class="dummy-label">画像準備中<br>（ダミーカード）</div>'}</div><div class="card-name">${c.name}</div><div class="card-number">${c.id}</div>${c.image?`<div class="trade-btns" onclick="event.stopPropagation()"><button class="trade-btn want ${tradeData[c.id]==='want'?'active':''}" onclick="setTrade('${c.id}','want')">🔍 求め</button><button class="trade-btn give ${tradeData[c.id]==='give'?'active':''}" onclick="setTrade('${c.id}','give')">🎁 譲り</button></div>`:''}${c.dummy?'<div class="dummy-note">追加予定</div>':''}</div>`}).join("")}updateProgress()}function toggleCard(id){owned=owned.includes(id)?owned.filter(x=>x!==id):[...owned,id];localStorage.setItem("aikatsu-encore-e1-owned",JSON.stringify(owned));render()}function updateProgress(){const total=cards.length,count=owned.length,p=Math.round(count/total*100);document.getElementById("percent").textContent=p+"%";document.getElementById("progress").style.width=p+"%";document.getElementById("count").textContent=count+" / "+total+" 枚"}function setFilter(t,b){filter=t;document.querySelectorAll(".controls button").forEach(x=>x.classList.remove("active"));b.classList.add("active");render()}function resetData(){if(!confirm("所持データをすべてリセットしますか？"))return;owned=[];localStorage.removeItem("aikatsu-encore-e1-owned");render()}document.getElementById("search").addEventListener("input",render);render();</script></body></html>
+/* 欲しいもの・所持数 */
+.trade-choice{display:flex;align-items:center;justify-content:center;gap:6px;margin:8px 0;flex-wrap:wrap}
+.want-btn{border:1px solid #e8b4d0;border-radius:14px;padding:7px 10px;background:#fff;font-size:12px;font-weight:700}
+.want-btn.active{background:#ffd8ea;box-shadow:0 0 0 2px #f58bb8 inset}
+.count-box{display:flex;align-items:center;border:1px solid #d8c7df;border-radius:14px;overflow:hidden;background:#fff}
+.count-box button{border:0;background:#fff;padding:6px 9px;font-size:15px;font-weight:700}
+.count-box span{min-width:25px;text-align:center;font-weight:800}
+.count-label{font-size:11px;font-weight:700}
+.list-tools{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+.list-tools button{border:0;border-radius:18px;padding:9px 12px;font-weight:700;background:#fff;box-shadow:0 2px 8px rgba(120,80,150,.12)}
+
+</style></head><body><header><div class="logo-badge">♡</div><h1>♡ コンプチェッカー ♡</h1><p>アイカツ！アンコール 第1弾</p></header><div class="container"><div class="progress-box"><div class="progress-title">✦ MY COLLECTION ✦</div><div class="progress-text" id="percent">0%</div><div class="progress-bar"><div class="progress-fill" id="progress"></div></div><div id="count">0 / 85 枚</div></div><input class="search" id="search" type="text" placeholder="🔍 カード番号を検索"><div class="controls"><button class="active" onclick="setFilter('all',this)">すべて</button><button onclick="setFilter('owned',this)">所持</button><button onclick="setFilter('missing',this)">未所持</button></div><div class="cards" id="cards"></div><button class="reset" onclick="resetData()">所持データをリセット</button></div><script>const cards=[{"id":"E1-01","name":"E1-01","image":"","dummy":true},{"id":"E1-02","name":"E1-02","image":"","dummy":true},{"id":"E1-03","name":"E1-03","image":"","dummy":true},{"id":"E1-04","name":"E1-04","image":"","dummy":true},{"id":"E1-05","name":"E1-05","image":"cards/E1-05.webp","dummy":false},{"id":"E1-06","name":"E1-06","image":"cards/E1-06.webp","dummy":false},{"id":"E1-07","name":"E1-07","image":"cards/E1-07.webp","dummy":false},{"id":"E1-08","name":"E1-08","image":"cards/E1-08.webp","dummy":false},{"id":"E1-09","name":"E1-09","image":"cards/E1-09.webp","dummy":false},{"id":"E1-10","name":"E1-10","image":"cards/E1-10.webp","dummy":false},{"id":"E1-11","name":"E1-11","image":"cards/E1-11.webp","dummy":false},{"id":"E1-12","name":"E1-12","image":"cards/E1-12.webp","dummy":false},{"id":"E1-13","name":"E1-13","image":"cards/E1-13.webp","dummy":false},{"id":"E1-14","name":"E1-14","image":"cards/E1-14.webp","dummy":false},{"id":"E1-15","name":"E1-15","image":"cards/E1-15.webp","dummy":false},{"id":"E1-16","name":"E1-16","image":"cards/E1-16.webp","dummy":false},{"id":"E1-17","name":"E1-17","image":"cards/E1-17.webp","dummy":false},{"id":"E1-18","name":"E1-18","image":"cards/E1-18.webp","dummy":false},{"id":"E1-19","name":"E1-19","image":"cards/E1-19.webp","dummy":false},{"id":"E1-20","name":"E1-20","image":"cards/E1-20.webp","dummy":false},{"id":"E1-21","name":"E1-21","image":"cards/E1-21.webp","dummy":false},{"id":"E1-22","name":"E1-22","image":"cards/E1-22.webp","dummy":false},{"id":"E1-23","name":"E1-23","image":"cards/E1-23.webp","dummy":false},{"id":"E1-24","name":"E1-24","image":"cards/E1-24.webp","dummy":false},{"id":"E1-25","name":"E1-25","image":"cards/E1-25.webp","dummy":false},{"id":"E1-26","name":"E1-26","image":"cards/E1-26.webp","dummy":false},{"id":"E1-27","name":"E1-27","image":"cards/E1-27.webp","dummy":false},{"id":"E1-28","name":"E1-28","image":"cards/E1-28.webp","dummy":false},{"id":"E1-29","name":"E1-29","image":"cards/E1-29.webp","dummy":false},{"id":"E1-30","name":"E1-30","image":"","dummy":true},{"id":"E1-31","name":"E1-31","image":"","dummy":true},{"id":"E1-32","name":"E1-32","image":"","dummy":true},{"id":"E1-33","name":"E1-33","image":"","dummy":true},{"id":"E1-34","name":"E1-34","image":"","dummy":true},{"id":"E1-35","name":"E1-35","image":"","dummy":true},{"id":"E1-36","name":"E1-36","image":"","dummy":true},{"id":"E1-37","name":"E1-37","image":"cards/E1-37.webp","dummy":false},{"id":"E1-38","name":"E1-38","image":"cards/E1-38.webp","dummy":false},{"id":"E1-39","name":"E1-39","image":"cards/E1-39.webp","dummy":false},{"id":"E1-40","name":"E1-40","image":"cards/E1-40.webp","dummy":false},{"id":"E1-41","name":"E1-41","image":"cards/E1-41.webp","dummy":false},{"id":"E1-42","name":"E1-42","image":"cards/E1-42.webp","dummy":false},{"id":"E1-43","name":"E1-43","image":"cards/E1-43.webp","dummy":false},{"id":"E1-44","name":"E1-44","image":"cards/E1-44.webp","dummy":false},{"id":"E1-45","name":"E1-45","image":"cards/E1-45.webp","dummy":false},{"id":"E1-46","name":"E1-46","image":"cards/E1-46.webp","dummy":false},{"id":"E1-47","name":"E1-47","image":"cards/E1-47.webp","dummy":false},{"id":"E1-48","name":"E1-48","image":"cards/E1-48.webp","dummy":false},{"id":"E1-49","name":"E1-49","image":"cards/E1-49.webp","dummy":false},{"id":"E1-50","name":"E1-50","image":"","dummy":true},{"id":"E1-51","name":"E1-51","image":"cards/E1-51.webp","dummy":false},{"id":"E1-52","name":"E1-52","image":"cards/E1-52.webp","dummy":false},{"id":"E1-53","name":"E1-53","image":"cards/E1-53.webp","dummy":false},{"id":"E1-54","name":"E1-54","image":"cards/E1-54.webp","dummy":false},{"id":"E1-55","name":"E1-55","image":"cards/E1-55.webp","dummy":false},{"id":"E1-56","name":"E1-56","image":"cards/E1-56.webp","dummy":false},{"id":"E1-57","name":"E1-57","image":"cards/E1-57.webp","dummy":false},{"id":"E1-58","name":"E1-58","image":"cards/E1-58.webp","dummy":false},{"id":"E1-59","name":"E1-59","image":"cards/E1-59.webp","dummy":false},{"id":"E1-60","name":"E1-60","image":"cards/E1-60.webp","dummy":false},{"id":"E1-61","name":"E1-61","image":"cards/E1-61.webp","dummy":false},{"id":"E1-62","name":"E1-62","image":"cards/E1-62.webp","dummy":false},{"id":"E1-63","name":"E1-63","image":"cards/E1-63.webp","dummy":false},{"id":"E1-64","name":"E1-64","image":"cards/E1-64.webp","dummy":false},{"id":"E1-65","name":"E1-65","image":"cards/E1-65.webp","dummy":false},{"id":"E1-66","name":"E1-66","image":"cards/E1-66.webp","dummy":false},{"id":"E1-67","name":"E1-67","image":"cards/E1-67.webp","dummy":false},{"id":"E1-68","name":"E1-68","image":"cards/E1-68.webp","dummy":false},{"id":"E1-69","name":"E1-69","image":"cards/E1-69.webp","dummy":false},{"id":"E1-70","name":"E1-70","image":"cards/E1-70.webp","dummy":false},{"id":"E1-71","name":"E1-71","image":"","dummy":true},{"id":"E1-72","name":"E1-72","image":"","dummy":true},{"id":"E1-73","name":"E1-73","image":"","dummy":true},{"id":"E1-74","name":"E1-74","image":"","dummy":true},{"id":"E1-75","name":"E1-75","image":"","dummy":true},{"id":"E1-76","name":"E1-76","image":"","dummy":true},{"id":"E1-77","name":"E1-77","image":"","dummy":true},{"id":"E1-78","name":"E1-78","image":"","dummy":true},{"id":"E1-79","name":"E1-79","image":"","dummy":true},{"id":"E1-80","name":"E1-80","image":"","dummy":true},{"id":"E1-81","name":"E1-81","image":"","dummy":true},{"id":"E1-82","name":"E1-82","image":"","dummy":true},{"id":"E1-83","name":"E1-83","image":"cards/E1-83.webp","dummy":false},{"id":"E1-84","name":"E1-84","image":"cards/E1-84.webp","dummy":false},{"id":"E1-85","name":"E1-85","image":"cards/E1-85.webp","dummy":false}];let owned=JSON.parse(localStorage.getItem("aikatsu-encore-e1-owned")||"[]");let filter="all";function render(){const s=document.getElementById("search").value.toLowerCase();const area=document.getElementById("cards");const filtered=cards.filter(c=>(c.id.toLowerCase().includes(s)||c.name.toLowerCase().includes(s))&&(filter==="all"||(filter==="owned"&&owned.includes(c.id))||(filter==="missing"&&!owned.includes(c.id))));if(!filtered.length){area.innerHTML='<div class="empty">該当するカードがありません</div>'}else{area.innerHTML=filtered.map(c=>{const o=owned.includes(c.id);return `<div class="card ${o?'owned':''}" onclick="toggleCard('${c.id}')"><div class="check">${o?'✓':''}</div><div class="card-image">${c.image?`<img src="${c.image}" alt="${c.id}">`:'<div class="dummy-label">画像準備中<br>（ダミーカード）</div>'}</div><div class="card-name">${c.name}</div><div class="card-number">${c.id}</div>${c.dummy?'<div class="dummy-note">追加予定</div>':''}</div>`}).join("")}updateProgress()}function toggleCard(id){owned=owned.includes(id)?owned.filter(x=>x!==id):[...owned,id];localStorage.setItem("aikatsu-encore-e1-owned",JSON.stringify(owned));render()}function updateProgress(){const total=cards.length,count=owned.length,p=Math.round(count/total*100);document.getElementById("percent").textContent=p+"%";document.getElementById("progress").style.width=p+"%";document.getElementById("count").textContent=count+" / "+total+" 枚"}function setFilter(t,b){filter=t;document.querySelectorAll(".controls button").forEach(x=>x.classList.remove("active"));b.classList.add("active");render()}function resetData(){if(!confirm("所持データをすべてリセットしますか？"))return;owned=[];localStorage.removeItem("aikatsu-encore-e1-owned");render()}document.getElementById("search").addEventListener("input",render);render();
+// ===== 欲しいもの・所持数 =====
+const WISH_KEY = 'aikatsu-encore-e1-wish';
+const COUNT_KEY = 'aikatsu-encore-e1-count';
+let wishData = JSON.parse(localStorage.getItem(WISH_KEY) || '{}');
+let countData = JSON.parse(localStorage.getItem(COUNT_KEY) || '{}');
+
+function saveTradeSettings(){
+  localStorage.setItem(WISH_KEY, JSON.stringify(wishData));
+  localStorage.setItem(COUNT_KEY, JSON.stringify(countData));
+}
+
+function toggleWant(id, ev){
+  if(ev) ev.stopPropagation();
+  wishData[id] = !wishData[id];
+  saveTradeSettings();
+  render();
+}
+
+function changeCount(id, delta, ev){
+  if(ev) ev.stopPropagation();
+  countData[id] = Math.max(0, Number(countData[id] || 0) + delta);
+  saveTradeSettings();
+  render();
+}
+
+function saveListImage(type){
+  const list = cards.filter(c => c.image && (type === 'want' ? wishData[c.id] : Number(countData[c.id] || 0) > 0));
+  if(!list.length){
+    alert(type === 'want' ? '「欲しいもの」を選択してください。' : '所持数を1以上にしてください。');
+    return;
+  }
+  const title = type === 'want' ? '💗 欲しいものリスト' : '📦 所持リスト';
+  const cols = 3, cardW = 260, cardH = 365, pad = 35, head = 95;
+  const rows = Math.ceil(list.length / cols);
+  const canvas = document.createElement('canvas');
+  canvas.width = pad*2 + cols*cardW;
+  canvas.height = head + pad*2 + rows*cardH;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle='#fff8fd'; ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle='#6f4b73'; ctx.textAlign='center';
+  ctx.font='bold 32px sans-serif'; ctx.fillText('アイカツ！アンコール 第1弾',canvas.width/2,40);
+  ctx.font='bold 27px sans-serif'; ctx.fillText(title,canvas.width/2,78);
+  let done=0;
+  list.forEach((c,i)=>{
+    const img=new Image();
+    img.onload=()=>{
+      const x=pad+(i%cols)*cardW, y=head+pad+Math.floor(i/cols)*cardH;
+      const ratio=Math.min((cardW-20)/img.width,(cardH-60)/img.height);
+      const w=img.width*ratio,h=img.height*ratio;
+      ctx.drawImage(img,x+(cardW-w)/2,y,w,h);
+      ctx.fillStyle='#6f4b73'; ctx.font='bold 21px sans-serif';
+      ctx.fillText(c.id+(type==='owned'?' ×'+Number(countData[c.id]||0):''),x+cardW/2,y+cardH-14);
+      done++;
+      if(done===list.length){
+        const a=document.createElement('a');
+        a.download=type==='want'?'aikatsu-yokumono.png':'aikatsu-shoyusu.png';
+        a.href=canvas.toDataURL('image/png'); a.click();
+      }
+    };
+    img.onerror=()=>{done++;};
+    img.src=c.image;
+  });
+}
+
+</script>
+<script>
+const listStateObserver = new MutationObserver(() => {
+  document.querySelectorAll('.want-btn').forEach(btn => {
+    const m=(btn.getAttribute('onclick')||'').match(/toggleWant\('([^']+)'/);
+    if(m){
+      const id=m[1];
+      btn.classList.toggle('active', !!wishData[id]);
+    }
+  });
+  document.querySelectorAll('[id^="count-"]').forEach(el => {
+    const id=el.id.slice(6);
+    el.textContent=Number(countData[id]||0);
+  });
+});
+listStateObserver.observe(document.body,{childList:true,subtree:true});
+</script>
+
+</body></html>
