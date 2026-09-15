@@ -58,7 +58,7 @@ header p{margin:6px 0 0;font-size:14px}
 .preview-body{text-align:center}
 .preview-body img{width:100%;height:auto;display:block;border-radius:10px}
 .preview-actions{display:flex;gap:8px;margin-top:12px}
-.preview-actions button{flex:1;border:0;border-radius:12px;padding:12px;font-size:14px}
+.preview-actions button{flex:1;border:0;border-radius:12px;padding:12px;font-size:14px}.page-btn{border:0;border-radius:10px;padding:8px 12px;background:#eee;color:#555}.page-btn.selected{background:#ff9dcc;color:#fff}
 .preview-save{background:#ff9dcc;color:#fff}
 .preview-close{background:#eee;color:#555}
 .loading{padding:40px;color:#777}
@@ -344,9 +344,13 @@ return;
 }
 
 const title=type==="want"?"欲しいものリスト":"所持カードリスト";
-const width=1200, cardW=180, cardH=260, gap=24, top=150, side=40;
-const cols=5;
-const rows=Math.ceil(list.length/cols);
+const width=1600, cardW=180, cardH=260, gap=20, top=150, side=40;
+const cols=8, rows=5, perPage=cols*rows;
+const pageCount=Math.ceil(list.length/perPage);
+const images=[];
+
+for(let page=0;page<pageCount;page++){
+const pageCards=list.slice(page*perPage,(page+1)*perPage);
 const height=top+rows*(cardH+gap)+40;
 
 const canvas=document.createElement("canvas");
@@ -368,10 +372,10 @@ ctx.fillText(title,width/2,105);
 ctx.textAlign="left";
 ctx.font="18px -apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif";
 ctx.fillStyle="#777";
-ctx.fillText(currentSet.name+"　"+list.length+"枚",side,135);
+ctx.fillText(currentSet.name+"　"+list.length+"枚　"+(page+1)+"/"+pageCount+"ページ",side,135);
 
-for(let i=0;i<list.length;i++){
-const c=list[i],d=state(c);
+for(let i=0;i<pageCards.length;i++){
+const c=pageCards[i],d=state(c);
 const col=i%cols,row=Math.floor(i/cols);
 const x=side+col*(cardW+gap),y=top+row*(cardH+gap);
 
@@ -404,42 +408,68 @@ ctx.fillText("所持数 "+d.qty+"枚",x+cardW/2,y+cardH+20);
 }
 }
 
-const dataUrl=canvas.toDataURL("image/png");
-showListPreview(dataUrl,title);
+images.push({
+dataUrl:canvas.toDataURL("image/png"),
+page:page+1
+});
 }
 
-function showListPreview(dataUrl,title){
+showListPreview(images,title);
+}
+function showListPreview(images,title){
 const old=document.getElementById("listPreview");
 if(old)old.remove();
 
 const wrap=document.createElement("div");
 wrap.className="list-preview";
 wrap.id="listPreview";
+
+let pageButtons="";
+if(images.length>1){
+pageButtons=images.map((x,i)=>
+`<button type="button" class="page-btn ${i===0?"selected":""}" onclick="showListPage(${i})">${i+1}ページ</button>`
+).join("");
+}
+
 wrap.innerHTML=`
 <div class="preview-sheet">
 <div class="preview-head">
 <strong>${title}</strong>
 <button type="button" onclick="closeListPreview()">閉じる</button>
 </div>
-<div class="preview-note">画像を長押しして「写真に保存」できます。</div>
+<div class="preview-note">横8枚 × 縦5枚。画像を長押しして「写真に保存」できます。</div>
 <div class="preview-body"><img id="generatedListImage" alt="${title}"></div>
+<div id="pageButtons" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">${pageButtons}</div>
 <div class="preview-actions">
 <button class="preview-save" type="button" onclick="saveListImage()">画像を保存</button>
 <button class="preview-close" type="button" onclick="closeListPreview()">閉じる</button>
 </div>
 </div>`;
+
 document.body.appendChild(wrap);
-document.getElementById("generatedListImage").src=dataUrl;
-window.currentListDataUrl=dataUrl;
+window.currentListImages=images;
+window.currentListPage=0;
+showListPage(0);
 }
 
-function saveListImage(){
+function showListPage(index){
+if(!window.currentListImages||!window.currentListImages[index])return;
+window.currentListPage=index;
 const img=document.getElementById("generatedListImage");
-if(!img)return;
+if(img)img.src=window.currentListImages[index].dataUrl;
+
+document.querySelectorAll("#pageButtons .page-btn").forEach((b,i)=>{
+b.classList.toggle("selected",i===index);
+});
+}
+function saveListImage(){
+const images=window.currentListImages;
+const index=window.currentListPage||0;
+if(!images||!images[index])return;
 
 const a=document.createElement("a");
-a.href=img.src;
-a.download="コンプチェッカー_"+(currentSet.name||"リスト")+".png";
+a.href=images[index].dataUrl;
+a.download="コンプチェッカー_"+(currentSet.name||"リスト")+"_"+(index+1)+".png";
 document.body.appendChild(a);
 a.click();
 a.remove();
@@ -448,11 +478,10 @@ setTimeout(()=>{
 alert("保存画面が出ない場合は、表示された画像を長押しして「写真に保存」を選んでください。");
 },300);
 }
-
 function closeListPreview(){
 const p=document.getElementById("listPreview");
 if(p)p.remove();
-window.currentListDataUrl="";
+window.currentListDataUrl="";window.currentListImages=[];window.currentListPage=0;
 }
 
 document.getElementById("search").addEventListener("input",render);
